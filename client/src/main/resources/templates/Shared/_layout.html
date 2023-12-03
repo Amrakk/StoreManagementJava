@@ -133,7 +133,7 @@
                             <div class="profile_info_iner">
                                 <div class="profile_author_name">
                                     <p>Welcome, </p>
-                                    <h5 th:text="${user.getUsername()}"></h5>
+                                    <h5 th:if="${user} != null" th:text="${user.getUsername()}"></h5>
                                 </div>
                                 <div class="profile_info_details">
                                     <a href="#">My Profile</a>
@@ -157,21 +157,14 @@
 
 <!-- region Script -->
 <script src="/js/jquery1-3.4.1.min.js"></script>
-
 <script src="/js/popper1.min.js"></script>
-
 <script src="/js/bootstrap1.min.js"></script>
-
 <script src="/js/metisMenu.js"></script>
 
 <script src="/vendors/count_up/jquery.waypoints.min.js"></script>
-
 <script src="/vendors/chartlist/Chart.min.js"></script>
-
 <script src="/vendors/count_up/jquery.counterup.min.js"></script>
-
 <script src="/vendors/niceselect/js/jquery.nice-select.min.js"></script>
-
 <script src="/vendors/owl_carousel/js/owl.carousel.min.js"></script>
 
 <script src="/vendors/datatable/js/jquery.dataTables.min.js"></script>

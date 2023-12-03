@@ -38,12 +38,4 @@ public class UserService {
         return restTemplate.postForObject(baseUrl + "/users", requestEntity, User.class);
     }
 
-    public User validateToken(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(token);
-
-        HttpEntity<?> requestEntity = new HttpEntity<>(headers);
-        return restTemplate.postForObject(baseUrl + "/validate", requestEntity, User.class);
-    }
 }
