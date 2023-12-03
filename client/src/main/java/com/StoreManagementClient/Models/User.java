@@ -1,15 +1,18 @@
 package com.StoreManagementClient.Models;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class User {
-    private Long id;
+    private String id;
+    private String email;
     private String username;
+    private String password;
+    private Status status;
+    private Role role;
+    private String avatar;
 }
