@@ -41,13 +41,14 @@ public class AuthService {
                     }
             );
 
-            Map<String, Object> responseBody = apiResponse.getBody();
             String token = apiResponse.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             token = token.substring(7);
             Cookie tokenCookie = new Cookie("token", token);
+            tokenCookie.setPath("/");
             response.addCookie(tokenCookie);
 
             User user = null;
+            Map<String, Object> responseBody = apiResponse.getBody();
             if (responseBody != null && responseBody.containsKey("user"))
                 user = Converter.convertToUser((Map<String, Object>) responseBody.get("user"));
 

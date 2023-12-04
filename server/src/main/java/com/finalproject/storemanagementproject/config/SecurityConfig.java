@@ -2,6 +2,7 @@ package com.finalproject.storemanagementproject.config;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -29,7 +30,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api", "/api/auth/login").permitAll())
+                .authorizeHttpRequests(auth -> auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/**").permitAll())
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/auth/login").permitAll())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .httpBasic(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)

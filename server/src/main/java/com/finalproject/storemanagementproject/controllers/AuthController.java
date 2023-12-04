@@ -48,6 +48,7 @@ public class AuthController {
         token = token.substring(7);
         String email = tokenService.validateToken(token);
         User user = userService.getUserByEmail(email);
+        if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "Invalid token"));
 
         return ResponseEntity.ok(Map.of("message", "Valid token", "user", user));
     }

@@ -1,6 +1,5 @@
 package com.StoreManagementClient.Controllers;
 
-import com.StoreManagementClient.Middlewares.Utils;
 import com.StoreManagementClient.Models.User;
 import com.StoreManagementClient.Services.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,17 +18,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class AuthController {
 
     private final AuthService authService;
-    private final Utils utils;
 
     @Autowired
-    public AuthController(AuthService authService, Utils utils) {
-        this.utils = utils;
+    public AuthController(AuthService authService) {
         this.authService = authService;
     }
 
     @GetMapping("/login")
     public String login(HttpServletRequest request, RedirectAttributes redirectAttrs) {
-        User user = utils.isAuthenticated(request);
+        User user = (User) request.getAttribute("authenticatedUser");
 
         if (user != null) {
             redirectAttrs.addFlashAttribute("user", user);
@@ -49,6 +46,7 @@ public class AuthController {
             model.addAttribute("error", "Invalid credentials!");
             return "Auth/login";
         }
+
         redirectAttrs.addFlashAttribute("user", user);
         return "redirect:/Home";
     }
