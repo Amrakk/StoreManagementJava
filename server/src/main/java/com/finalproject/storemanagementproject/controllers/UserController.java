@@ -4,6 +4,7 @@ import com.finalproject.storemanagementproject.models.User;
 import com.finalproject.storemanagementproject.services.PasswordService;
 import com.finalproject.storemanagementproject.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -22,58 +23,76 @@ public class UserController {
     }
 
     @GetMapping(value = "", produces = "application/json")
-    public Map<String, Object> getAllUsers() {
+    public ResponseEntity<Map<String, Object>> getAllUsers() {
         Iterable<User> users = userService.getAllUsers();
-        int i = 0;
+
         for (User user : users) {
             user.setPassword("");
             user.setAvatar("");
         }
 
-        return Map.of("message", "Get users success", "users", users);
+        return ResponseEntity.ok(Map.of("message", "Get all users success", "users", users));
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
-    public Map<String, Object> getUserById(String id) {
+    public ResponseEntity<Map<String, Object>> getUserById(String id) {
         User user = userService.getUserById(id);
-        if (user == null) return Map.of("message", "User not found");
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
         user.setPassword("");
 
-        return Map.of("message", "Get user success", "user", user);
+        return ResponseEntity.ok(Map.of("message", "Get user success", "user", user));
+    }
+
+    @PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
+    public Map<String, Object> createUser(@RequestBody User user) {
+        if (userService.getUserByEmail(user.getEmail()) != null)
+            return Map.of("message", "Email already exists");
+
+        return null;
     }
 
     @PostMapping(value = "/change-avatar/{id}", produces = "application/json")
-    public Map<String, Object> changeAvatar(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, Object>> changeAvatar(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
         String avatarUrl = requestBody.get("avatarUrl");
         User user = userService.getUserById(id);
-        if (user == null) return Map.of("message", "User not found");
+        if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
         if (!avatarUrl.matches("^https?://.*\\.(?:png|jpg|jpeg|gif)$"))
-            return Map.of("message", "Invalid image url");
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid avatar url"));
 
         user.setAvatar(avatarUrl);
         userService.updateUser(user);
 
-        return Map.of("message", "Change avatar success", "user", user);
+        return ResponseEntity.ok(Map.of("message", "Change avatar success", "user", user));
     }
 
     @PostMapping(value = "/change-password/{id}", produces = "application/json")
-    public Map<String, Object> changePassword(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<Map<String, Object>> changePassword(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
         String newPassword = requestBody.get("newPassword");
         String confirmPassword = requestBody.get("confirmPassword");
 
         User user = userService.getUserById(id);
-        if (user == null) return Map.of("message", "User not found");
+        if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
         if (!newPassword.equals(confirmPassword))
-            return Map.of("message", "Confirm password not match");
+            return ResponseEntity.badRequest().body(Map.of("message", "Confirm password not match"));
 
         newPassword = passwordService.hashPassword(newPassword);
         user.setPassword(newPassword);
         userService.updateUser(user);
 
-        return Map.of("message", "Change password success", "user", user);
+        return ResponseEntity.ok().body(Map.of("message", "Change password success", "user", user));
     }
 
+    @PostMapping(value = "/update/{id}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @PathVariable User user) {
+        return null;
+    }
+
+    @PostMapping(value = "/delete/{id}", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id) {
+        return null;
+    }
 }

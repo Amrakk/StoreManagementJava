@@ -38,7 +38,7 @@ public class UserController {
     public String profile(Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("authenticatedUser");
         model.addAttribute("user", user);
-        System.out.println(user.getRole());
+        
         return "Main/profile";
     }
 

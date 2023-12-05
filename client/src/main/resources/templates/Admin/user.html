@@ -40,8 +40,11 @@
                                     </div>
                                 </div>
                                 <div class="add_button ms-2">
-                                    <a href="#" data-toggle="modal" data-target="#addcategory" class="btn_1">search</a>
+                                    <a href="" class="btn_1">Search</a>
                                 </div>
+                            </div>
+                            <div class="add_button ms-2">
+                                <a href="#" class="btn_1 border-primary bg-primary" onclick="showCreateUserModal()">Create</a>
                             </div>
                         </div>
                         <!--    endregion Search   -->
@@ -81,7 +84,8 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="user, iterStat : ${users}" th:class="${iterStat.odd} ? 'odd' : 'even'">
+                                <tr th:each="user, iterStat : ${users}" th:class="${iterStat.odd} ? 'odd' : 'even'"
+                                    th:id="${user.getId()}">
                                     <td tabindex="0" class="sorting_1">
                                         <a href="#" class="question_content" th:text="${iterStat.index + 1}"></a>
                                     </td>
@@ -101,8 +105,12 @@
                                     </td>
                                     <td>
                                         <div class="action_btns d-flex">
-                                            <a href="#" class="action_btn mr_10"> <i class="far fa-edit"></i> </a>
-                                            <a href="#" class="action_btn"> <i class="fas fa-trash"></i> </a>
+                                            <a href="#" class="action_btn mr_10" onclick="showUserDetailsModal()">
+                                                <i class="far fa-edit"></i>
+                                            </a>
+                                            <a href="#" class="action_btn">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
                                         </div>
                                     </td>
                                 </tr>
@@ -118,6 +126,103 @@
     </div>
 </div>
 
+<!--    region Modals   -->
+
+<div layout:fragment="grid-modal">
+    
+    <!--    region User Details    -->
+
+    <div class="modal fade show" id="user_details" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
+         aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="width: 400px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">User Details</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <div class="card custom-card mb-0">
+                            <div class="row">
+                                <div class="card-profile col-lg-12 mb-3">
+                                    <img class="rounded-circle" th:src="${user.getAvatar()}" data-original-title=""
+                                         title="Your avatar" alt="Your profile image here" onclick="showGridModal()"
+                                         style="cursor: pointer;">
+                                </div>
+                                <div class="text-center profile-details">
+                                    <h3>Duy Nguyen</h3>
+                                    <h6>Admin</h6>
+                                    <h6>admin@gmail.com</h6>
+                                    <a href="#"
+                                       th:class="${user.getStatus() == 'LOCKED'} ? 'status_btn orange_bg' : 'status_btn'">
+                                        <span th:text="${#strings.toLowerCase(user.getStatus())}"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger">Locked/Unlocked</button>
+                    <button type="button" class="btn btn-success">Reset Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--    endregion User Details    -->
+
+    <!--    region Create Users    -->
+
+    <div class="modal fade show" id="create_user" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
+         aria-modal="true" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="width: 400px">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createUserModalLongTitle">Create new User</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form action="">
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="card custom-card" id="create_user_card">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="common_input mb_15">
+                                            <input name="email" type="text" placeholder="Email Address">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12" onclick="toggleCard()">
+                                        <select class="nice_Select2 nice_Select_line wide" id="create_user_role">
+                                            <option value="">Select Role</option>
+                                            <option value="ADMIN">Admin</option>
+                                            <option value="EMPLOYEE">Employee</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--    endregion User Details    -->
+
+</div>
+
+<!--    endregion Modals   -->
 
 </body>
 </html>

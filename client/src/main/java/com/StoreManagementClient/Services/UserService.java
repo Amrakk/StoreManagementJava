@@ -84,10 +84,12 @@ public class UserService {
             );
 
             return getObjectFromApiResponse(apiResponse);
-
         } catch (HttpClientErrorException e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
         }
     }
 
@@ -111,8 +113,11 @@ public class UserService {
 
             return getObjectFromApiResponse(apiResponse);
         } catch (HttpClientErrorException e) {
-            System.out.println(e.getMessage());
-            return e.getMessage();
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
         }
     }
 
