@@ -37,7 +37,6 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid credentials!"));
 
         String token = tokenService.generateToken(user);
-
         return ResponseEntity.ok()
                 .headers(httpHeaders -> httpHeaders.setBearerAuth(token))
                 .body(Map.of("message", "Login success", "user", user));

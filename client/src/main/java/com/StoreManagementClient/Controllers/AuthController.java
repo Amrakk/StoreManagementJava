@@ -50,4 +50,14 @@ public class AuthController {
         redirectAttrs.addFlashAttribute("user", user);
         return "redirect:/Home";
     }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getAttribute("authenticatedUser");
+        if (user != null)
+            authService.logout(response);
+        
+        return "redirect:/auth/login";
+    }
+
 }

@@ -43,6 +43,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             response.sendRedirect(contextPath + "/auth/login");
             return false;
         }
+        
         request.setAttribute("authenticatedUser", user);
         if (requestURI.equals("/") || requestURI.equals("/home")) response.sendRedirect("/Home");
         return true;

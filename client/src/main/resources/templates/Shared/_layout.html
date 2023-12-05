@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <title>Store Management</title>
 
     <link rel="stylesheet" href="/css/bootstrap1.min.css"/>
@@ -37,6 +38,7 @@
 
     <link rel="stylesheet" href="/css/style1.css"/>
     <link rel="stylesheet" href="/css/colors/default.css" id="colorSkinCSS">
+
 </head>
 
 
@@ -136,8 +138,8 @@
                                     <h5 th:if="${user} != null" th:text="${user.getUsername()}"></h5>
                                 </div>
                                 <div class="profile_info_details">
-                                    <a href="#">My Profile</a>
-                                    <a href="#">Log Out </a>
+                                    <a th:href="@{/profile}">My Profile</a>
+                                    <a th:href="@{/auth/logout}">Log Out</a>
                                 </div>
                             </div>
                         </div>
@@ -148,12 +150,48 @@
     </div>
     <!--    endregion SubHeader-->
 
-    <div class="main_content_iner overly_inner" layout:fragment="content">
-        <h1>Not Found</h1>
-        <p>The requested URL was not found on this server.</p>
+    <div class="main_content_iner overly_inner ">
+        <div class="container-fluid p-0 ">
+            <div layout:fragment="content">
+                <div class="row">
+                    <h1>Not Found</h1>
+                    <p>The requested URL was not found on this server.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!--    region Footer   -->
+    <div class="footer_part">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="footer_iner text-center">
+                        <p>2023 © Store Management</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--    endregion Footer   -->
 </section>
+
+<div layout:fragment="grid-modal">
+    No modal defined
+</div>
+
+<!-- region Warning Modal -->
+<div th:if="${error != null and error != ''}" class="modal fade bd-example-modal-sm show" tabindex="-1"
+     aria-labelledby="mySmallModalLabel" aria-modal="true" role="dialog">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content p-4">
+            <p th:text="${error}">Error message</p>
+        </div>
+    </div>
+</div>
+
+
+<!-- endregion Warning Modal-->
 
 <!-- region Script -->
 <script src="/js/jquery1-3.4.1.min.js"></script>
@@ -207,6 +245,19 @@
 
 <script src="/js/dashboard_init.js"></script>
 <script src="/js/custom.js"></script>
+
+<script>
+    function showGridModal() {
+        $('#grid_modal').modal('show');
+    }
+</script>
+
+<script th:if="${error != null and error != ''}">
+    $(document).ready(function () {
+        $('.modal').modal('show');
+    });
+</script>
+
 <!-- endregion Script -->
 </body>
 </html>

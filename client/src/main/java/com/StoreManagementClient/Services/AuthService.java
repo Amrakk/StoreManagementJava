@@ -57,4 +57,11 @@ public class AuthService {
             return null;
         }
     }
+
+    public void logout(HttpServletResponse response) {
+        Cookie tokenCookie = new Cookie("token", "");
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(0);
+        response.addCookie(tokenCookie);
+    }
 }
