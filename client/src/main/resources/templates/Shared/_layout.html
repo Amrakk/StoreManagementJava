@@ -131,7 +131,7 @@
                     <div class="serach_field-area d-flex align-items-center"></div>
                     <div class="header_right d-flex justify-content-between align-items-center">
                         <div class="profile_info mr_15 w-100">
-                            <img src="/img/client_img.png" alt="#">
+                            <img th:src="${user.getAvatar()}" alt="#">
                             <div class="profile_info_iner">
                                 <div class="profile_author_name">
                                     <p>Welcome, </p>
@@ -139,6 +139,13 @@
                                 </div>
                                 <div class="profile_info_details">
                                     <a th:href="@{/profile}">My Profile</a>
+                                    <a th:href="@{/admin/users}" th:if="${user.getRole().toString() != 'EMPLOYEE'}">User
+                                        Management
+                                    </a>
+                                    <a th:href="@{/owner}" th:if="${user.getRole().toString() == 'OWNER'}">
+                                        Owner Page
+                                    </a>
+                                    <br>
                                     <a th:href="@{/auth/logout}">Log Out</a>
                                 </div>
                             </div>
@@ -180,18 +187,31 @@
     No modal defined
 </div>
 
-<!-- region Warning Modal -->
+<!-- region Status Modal -->
+
 <div th:if="${error != null and error != ''}" class="modal fade bd-example-modal-sm show" tabindex="-1"
-     aria-labelledby="mySmallModalLabel" aria-modal="true" role="dialog">
+     aria-labelledby="mySmallModalLabel" aria-modal="true" role="dialog" id="error_modal">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content p-4">
-            <p th:text="${error}">Error message</p>
+        <div class="modal-content p-4 alert text-white bg-danger" role="alert">
+            <div class="alert-text text-center" style="font-weight: bolder">
+                <span th:text="${error}">Error message</span>
+            </div>
         </div>
     </div>
 </div>
 
+<div th:if="${success != null and success != ''}" class="modal fade bd-example-modal-sm show" tabindex="-1"
+     aria-labelledby="mySmallModalLabel" aria-modal="true" role="dialog" id="success_modal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content p-4 alert text-white bg-success" role="alert">
+            <div class="alert-text text-center" style="font-weight: bolder">
+                <span th:text="${success}">Success message</span>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!-- endregion Warning Modal-->
+<!-- endregion Status Modal-->
 
 <!-- region Script -->
 <script src="/js/jquery1-3.4.1.min.js"></script>
@@ -252,9 +272,17 @@
     }
 </script>
 
-<script th:if="${error != null and error != ''}">
+<script th:if="${error != null and error != '' or success != null and success != ''}">
     $(document).ready(function () {
-        $('.modal').modal('show');
+        // Check if error exists
+        if ("${error}" != null && "${error}" != '') {
+            $('#error_modal').modal('show');
+        }
+
+        // Check if success exists
+        if ("${success}" != null && "${success}" != '') {
+            $('#success_modal').modal('show');
+        }
     });
 </script>
 

@@ -83,20 +83,49 @@ public class UserService {
                     }
             );
 
-            Map<String, Object> responseBody = apiResponse.getBody();
-            if (responseBody == null)
-                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
-
-            if (responseBody.containsKey("user"))
-                return Converter.convertToUser((Map<String, Object>) responseBody.get("user"));
-            else if (responseBody.containsKey("message"))
-                return responseBody.get("message");
-            else
-                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+            return getObjectFromApiResponse(apiResponse);
 
         } catch (HttpClientErrorException e) {
             System.out.println(e.getMessage());
             return e.getMessage();
         }
+    }
+
+    public Object changePassword(String id, String newPassword, String confirmPassword) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("newPassword", newPassword);
+        payload.put("confirmPassword", confirmPassword);
+        HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
+                    baseUrl + "/change-password/" + id,
+                    HttpMethod.POST,
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            return getObjectFromApiResponse(apiResponse);
+        } catch (HttpClientErrorException e) {
+            System.out.println(e.getMessage());
+            return e.getMessage();
+        }
+    }
+
+    private Object getObjectFromApiResponse(ResponseEntity<Map<String, Object>> apiResponse) {
+        Map<String, Object> responseBody = apiResponse.getBody();
+        if (responseBody == null)
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+        if (responseBody.containsKey("user"))
+            return Converter.convertToUser((Map<String, Object>) responseBody.get("user"));
+        else if (responseBody.containsKey("message"))
+            return responseBody.get("message");
+        else
+            throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
     }
 }

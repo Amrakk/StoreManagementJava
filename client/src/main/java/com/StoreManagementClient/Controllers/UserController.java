@@ -38,7 +38,7 @@ public class UserController {
     public String profile(Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("authenticatedUser");
         model.addAttribute("user", user);
-
+        System.out.println(user.getRole());
         return "Main/profile";
     }
 
@@ -50,8 +50,28 @@ public class UserController {
         Object response = userService.changeAvatar(user.getId(), avatarUrl);
         if (response instanceof String)
             redirectAttrs.addFlashAttribute("error", response);
-        else
+        else {
+            redirectAttrs.addFlashAttribute("success", "Change avatar success");
             redirectAttrs.addFlashAttribute("user", response);
+        }
+
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/user/change-password")
+    public String changePassword(@RequestParam("newPassword") String newPassword,
+                                 @RequestParam("confirmPassword") String confirmPassword,
+                                 HttpServletRequest request, RedirectAttributes redirectAttrs) {
+        User user = (User) request.getAttribute("authenticatedUser");
+        redirectAttrs.addFlashAttribute("user", user);
+
+        Object response = userService.changePassword(user.getId(), newPassword, confirmPassword);
+        if (response instanceof String)
+            redirectAttrs.addFlashAttribute("error", response);
+        else {
+            redirectAttrs.addFlashAttribute("success", "Change password success");
+            redirectAttrs.addFlashAttribute("user", response);
+        }
 
         return "redirect:/profile";
     }

@@ -11,23 +11,19 @@ import java.util.Map;
 public class Converter {
 
     public static List<User> convertToUsers(List<Map<String, Object>> usersMap) {
-        if (usersMap == null)
-            return null;
+        if (usersMap == null) return null;
 
         List<User> users = new ArrayList<User>();
         for (Map<String, Object> userMap : usersMap) {
             User user = convertToUser(userMap);
-            System.out.println(user != null);
-            if (user != null)
-                users.add(user);
+            if (user != null) users.add(user);
         }
-        
+
         return users;
     }
 
     public static User convertToUser(Map<String, Object> userMap) {
-        if (userMap == null)
-            return null;
+        if (userMap == null) return null;
 
         User user = new User();
         user.setId((String) userMap.get("id"));
