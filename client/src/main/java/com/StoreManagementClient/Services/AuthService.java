@@ -29,8 +29,8 @@ public class AuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, String> requestBody = Map.of("username", username, "password", password);
-        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
+        Map<String, String> body = Map.of("username", username, "password", password);
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
@@ -41,13 +41,14 @@ public class AuthService {
                     }
             );
 
-            Map<String, Object> responseBody = apiResponse.getBody();
             String token = apiResponse.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
             token = token.substring(7);
             Cookie tokenCookie = new Cookie("token", token);
+            tokenCookie.setPath("/");
             response.addCookie(tokenCookie);
 
             User user = null;
+            Map<String, Object> responseBody = apiResponse.getBody();
             if (responseBody != null && responseBody.containsKey("user"))
                 user = Converter.convertToUser((Map<String, Object>) responseBody.get("user"));
 
@@ -55,5 +56,12 @@ public class AuthService {
         } catch (HttpClientErrorException e) {
             return null;
         }
+    }
+
+    public void logout(HttpServletResponse response) {
+        Cookie tokenCookie = new Cookie("token", "");
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(0);
+        response.addCookie(tokenCookie);
     }
 }

@@ -1,4 +1,4 @@
-package com.finalproject.storemanagementproject.services;
+package com.finalproject.storemanagementproject.middleware;
 
 import com.finalproject.storemanagementproject.models.User;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @Service
 public class TokenService {
@@ -40,8 +41,11 @@ public class TokenService {
     public String validateToken(String token) {
         try {
             Jwt jwt = this.decoder.decode(token);
+
+            Instant now = Instant.now();
+            if (Objects.requireNonNull(jwt.getExpiresAt()).isBefore(now)) return null;
             return jwt.getSubject();
-        } catch (JwtException e) {
+        } catch (JwtException | NullPointerException e) {
             return null;
         }
     }

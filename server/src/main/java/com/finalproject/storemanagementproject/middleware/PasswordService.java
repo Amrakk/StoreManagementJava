@@ -1,4 +1,4 @@
-package com.finalproject.storemanagementproject.services;
+package com.finalproject.storemanagementproject.middleware;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;

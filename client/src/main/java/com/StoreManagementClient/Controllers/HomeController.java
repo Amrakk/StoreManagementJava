@@ -1,6 +1,6 @@
 package com.StoreManagementClient.Controllers;
 
-import com.StoreManagementClient.Middlewares.Utils;
+import com.StoreManagementClient.Middlewares.AuthenticationInterceptor;
 import com.StoreManagementClient.Models.User;
 import com.StoreManagementClient.Services.AuthService;
 import jakarta.servlet.RequestDispatcher;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("")
 public class HomeController implements ErrorController {
 
-    private final Utils utils;
+    private final AuthenticationInterceptor utils;
 
     @Autowired
-    public HomeController(AuthService authService, Utils utils) {
+    public HomeController(AuthService authService, AuthenticationInterceptor utils) {
         this.utils = utils;
     }
 
@@ -29,7 +29,7 @@ public class HomeController implements ErrorController {
         if (user != null && user.getUsername() != null)
             model.addAttribute("user", user);
         else {
-            user = utils.isAuthenticated(request);
+            user = (User) request.getAttribute("authenticatedUser");
             if (user != null) model.addAttribute("user", user);
             else return "redirect:/auth/login";
         }
@@ -48,9 +48,8 @@ public class HomeController implements ErrorController {
         if (status != null) {
             int statusCode = Integer.parseInt(status.toString());
             if (statusCode == 404) return "Error/404";
-            else if (statusCode == 401) return "Auth/login";
+            else if (statusCode == 401) return "Error/401";
         }
         return "Error/500";
     }
-
 }
