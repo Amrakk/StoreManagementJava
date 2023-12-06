@@ -1,8 +1,8 @@
 package com.finalproject.storemanagementproject.controllers;
 
+import com.finalproject.storemanagementproject.middleware.PasswordService;
+import com.finalproject.storemanagementproject.middleware.TokenService;
 import com.finalproject.storemanagementproject.models.User;
-import com.finalproject.storemanagementproject.services.PasswordService;
-import com.finalproject.storemanagementproject.services.TokenService;
 import com.finalproject.storemanagementproject.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

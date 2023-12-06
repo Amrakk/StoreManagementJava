@@ -1,9 +1,13 @@
 package com.finalproject.storemanagementproject.controllers;
 
+import com.finalproject.storemanagementproject.middleware.MailService;
+import com.finalproject.storemanagementproject.middleware.PasswordService;
+import com.finalproject.storemanagementproject.models.Role;
+import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
-import com.finalproject.storemanagementproject.services.PasswordService;
 import com.finalproject.storemanagementproject.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +19,14 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordService passwordService;
+    private final MailService mailService;
+
+    @Value("${default.avatar.url}")
+    private String defaultAvatarUrl;
 
     @Autowired
-    public UserController(UserService userService, PasswordService passwordService) {
+    public UserController(UserService userService, PasswordService passwordService, MailService mailService) {
+        this.mailService = mailService;
         this.userService = userService;
         this.passwordService = passwordService;
     }
@@ -35,7 +44,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getUserById(String id) {
+    public ResponseEntity<Map<String, Object>> getUserById(@PathVariable String id) {
         User user = userService.getUserById(id);
         if (user == null)
             return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
@@ -46,16 +55,38 @@ public class UserController {
     }
 
     @PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
-    public Map<String, Object> createUser(@RequestBody User user) {
-        if (userService.getUserByEmail(user.getEmail()) != null)
-            return Map.of("message", "Email already exists");
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String role = body.get("role").toUpperCase();
 
-        return null;
+        if (email.isEmpty() || role.isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
+
+        if (!email.matches("^\\w+@(" + mailService.DOMAIN + ")$"))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or domain"));
+
+        if (userService.getUserByEmail(email) != null)
+            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+
+        if (!userService.isValidRole(role))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
+
+        String username = email.split("@")[0];
+        String password = passwordService.hashPassword(username);
+
+        User user = new User(null, email, username, password, Status.NORMAL, Role.valueOf(role), defaultAvatarUrl);
+
+        boolean isAdded = userService.addUser(user);
+
+        if (!isAdded)
+            return ResponseEntity.badRequest().body(Map.of("message", "Create user failed"));
+
+        return ResponseEntity.ok(Map.of("message", "Create user success", "user", user));
     }
 
     @PostMapping(value = "/change-avatar/{id}", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> changeAvatar(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
-        String avatarUrl = requestBody.get("avatarUrl");
+    public ResponseEntity<Map<String, Object>> changeAvatar(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String avatarUrl = body.get("avatarUrl");
         User user = userService.getUserById(id);
         if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
@@ -69,12 +100,15 @@ public class UserController {
     }
 
     @PostMapping(value = "/change-password/{id}", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> changePassword(@PathVariable String id, @RequestBody Map<String, String> requestBody) {
-        String newPassword = requestBody.get("newPassword");
-        String confirmPassword = requestBody.get("confirmPassword");
+    public ResponseEntity<Map<String, Object>> changePassword(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String newPassword = body.get("newPassword");
+        String confirmPassword = body.get("confirmPassword");
 
         User user = userService.getUserById(id);
         if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        if (newPassword.isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("message", "Password is required"));
 
         if (!newPassword.equals(confirmPassword))
             return ResponseEntity.badRequest().body(Map.of("message", "Confirm password not match"));

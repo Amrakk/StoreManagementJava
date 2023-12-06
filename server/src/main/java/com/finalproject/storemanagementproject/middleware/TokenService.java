@@ -1,4 +1,4 @@
-package com.finalproject.storemanagementproject.services;
+package com.finalproject.storemanagementproject.middleware;
 
 import com.finalproject.storemanagementproject.models.User;
 import org.springframework.beans.factory.annotation.Value;

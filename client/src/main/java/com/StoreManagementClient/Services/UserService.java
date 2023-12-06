@@ -55,16 +55,34 @@ public class UserService {
         return restTemplate.getForObject(baseUrl + "/" + id, User.class);
     }
 
-//    public User createUser(User user) {
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        Map<String, String> payload = new HashMap<>();
-//        payload.put("username", user.getUsername());
-//
-//        HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
-//        System.out.println(requestEntity);
-//        return restTemplate.postForObject(baseUrl + "/users", requestEntity, User.class);
-//    }
+    public Object createUser(String email, String role) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> payload = new HashMap<>();
+        payload.put("email", email);
+        payload.put("role", role);
+
+        HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
+
+        try {
+            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
+                    baseUrl + "/create",
+                    HttpMethod.POST,
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            return getObjectFromApiResponse(apiResponse);
+        } catch (HttpClientErrorException e) {
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
+        }
+    }
 
     public Object changeAvatar(String id, String avatarUrl) {
         HttpHeaders headers = new HttpHeaders();

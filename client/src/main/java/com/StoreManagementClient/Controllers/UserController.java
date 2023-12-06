@@ -34,11 +34,26 @@ public class UserController {
         return "Admin/user";
     }
 
+    @PostMapping("/admin/users/create")
+    public String createUser(@RequestParam("email") String email, @RequestParam("role") String role, RedirectAttributes redirectAttrs) {
+        Object response = userService.createUser(email, role);
+
+        if (response instanceof String)
+            redirectAttrs.addFlashAttribute("error", response);
+        else
+            redirectAttrs.addFlashAttribute("success", "Create user success");
+
+        List<User> users = userService.getAllUsers();
+        redirectAttrs.addFlashAttribute("users", users);
+
+        return "redirect:/admin/users";
+    }
+
     @GetMapping("/profile")
     public String profile(Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("authenticatedUser");
         model.addAttribute("user", user);
-        
+
         return "Main/profile";
     }
 

@@ -129,7 +129,7 @@
 <!--    region Modals   -->
 
 <div layout:fragment="grid-modal">
-    
+
     <!--    region User Details    -->
 
     <div class="modal fade show" id="user_details" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
@@ -186,7 +186,7 @@
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form action="">
+                <form action="/admin/users/create" method="post">
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="card custom-card" id="create_user_card">
@@ -199,7 +199,8 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-12" onclick="toggleCard()">
-                                        <select class="nice_Select2 nice_Select_line wide" id="create_user_role">
+                                        <select name="role" class="nice_Select2 nice_Select_line wide"
+                                                id="create_user_role">
                                             <option value="">Select Role</option>
                                             <option value="ADMIN">Admin</option>
                                             <option value="EMPLOYEE">Employee</option>

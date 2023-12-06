@@ -1,5 +1,6 @@
 package com.finalproject.storemanagementproject.services;
 
+import com.finalproject.storemanagementproject.models.Role;
 import com.finalproject.storemanagementproject.models.User;
 import com.finalproject.storemanagementproject.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,5 +44,13 @@ public class UserService {
 
         userRepository.save(user);
         return true;
+    }
+
+    public boolean isValidRole(String role) {
+        for (Role r : Role.values())
+            if (r.name().equals(role))
+                return true;
+
+        return false;
     }
 }
