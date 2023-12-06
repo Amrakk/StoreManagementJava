@@ -32,7 +32,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String requestURI = request.getRequestURI();
-        if (requestURI.equals("/error")) return true;
+        if (requestURI.equals("/error") ||
+                requestURI.contains("js") ||
+                requestURI.contains("css") ||
+                requestURI.contains("img") ||
+                requestURI.contains("vendors"))
+            return true;
 
         User user = isAuthenticated(request, response);
         if (user == null) {
@@ -94,7 +99,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED)
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You don't have permission to access this resource");
-            
+
             return null;
         }
     }
