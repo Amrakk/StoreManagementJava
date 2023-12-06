@@ -105,10 +105,12 @@
                                     </td>
                                     <td>
                                         <div class="action_btns d-flex">
-                                            <a href="#" class="action_btn mr_10" onclick="showUserDetailsModal()">
+                                            <a href="#" class="action_btn mr_10" onclick="showUserDetailsModal(this)"
+                                               th:data-user-id="${user.getId()}">
                                                 <i class="far fa-edit"></i>
                                             </a>
-                                            <a href="#" class="action_btn">
+                                            <a href="#" class="action_btn" th:data-user-id="${user.getId()}"
+                                               onclick="showUserDeleteModal(this)">
                                                 <i class="fas fa-trash"></i>
                                             </a>
                                         </div>
@@ -148,16 +150,24 @@
                             <div class="row">
                                 <div class="card-profile col-lg-12 mb-3">
                                     <img class="rounded-circle" th:src="${user.getAvatar()}" data-original-title=""
-                                         title="Your avatar" alt="Your profile image here" onclick="showGridModal()"
-                                         style="cursor: pointer;">
+                                         title="Your avatar" alt="Your profile image here" style="cursor: pointer;"
+                                         id="avatar">
                                 </div>
-                                <div class="text-center profile-details">
-                                    <h3>Duy Nguyen</h3>
-                                    <h6>Admin</h6>
-                                    <h6>admin@gmail.com</h6>
-                                    <a href="#"
-                                       th:class="${user.getStatus() == 'LOCKED'} ? 'status_btn orange_bg' : 'status_btn'">
-                                        <span th:text="${#strings.toLowerCase(user.getStatus())}"></span>
+                                <div class="text-center profile-details d-flex justify-content-center flex-column align-items-center">
+                                    <h3 id="name">Duy Nguyen</h3>
+                                    <div class="col-6" onclick="toggleCard()">
+                                        <select name="role" class="nice_Select2 nice_Select_line wide m-2"
+                                                id="edit_user_role">
+                                            <option value="OWNER">OWNER</option>
+                                            <option value="ADMIN">ADMIN</option>
+                                            <option value="EMPLOYEE">EMPLOYEE</option>
+                                        </select>
+                                    </div>
+                                    <h6 id="email">admin@gmail.com</h6>
+                                    <a href="#" id="edit_user_status"
+                                       th:class="${user.getStatus() == 'LOCKED'} ? 'status_btn orange_bg' : 'status_btn'"
+                                       onclick="toggleUserStatus()">
+                                        <span th:text="${#strings.toLowerCase(user.getStatus())}" id="status"></span>
                                     </a>
                                 </div>
                             </div>
@@ -165,8 +175,8 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger">Locked/Unlocked</button>
                     <button type="button" class="btn btn-success">Reset Password</button>
+                    <button type="button" class="btn btn-warning text-white">Update</button>
                 </div>
             </div>
         </div>
@@ -219,11 +229,77 @@
         </div>
     </div>
 
-    <!--    endregion User Details    -->
+    <!--    endregion Create USer    -->
+
+    <!--    region Delete Users    -->
+
+    <div class="modal fade show" id="delete_user" tabindex="-1" role="dialog"
+         aria-labelledby="deleteModalLongTitle" aria-modal="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLongTitle">Delete User</h5>
+                    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <form action="/admin/users/delete" method="post">
+                    <div class="modal-body">
+                        Are you sure you want to delete: <span style="font-weight: bolder" id="delete_user_name"></span>?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--    endregion Delete Users   -->
 
 </div>
 
 <!--    endregion Modals   -->
 
+<script th:inline="javascript" layout:fragment="customScript">
+    var userList = [[${users}]];
+
+    function showUserDetailsModal(element) {
+        var userId = $(element).data("user-id");
+        var user = userList.find(user => user.id === userId);
+
+        $("#avatar").attr("src", user.avatar);
+        $("#name").text(user.username);
+        $("#edit_user_role").val(user.role).niceSelect("update");
+        $("#email").text(user.email);
+        $("#status").text(user.status);
+
+        if (user.status === "LOCKED") $("#edit_user_status").addClass("orange_bg");
+        else $("#edit_user_status").removeClass("orange_bg");
+
+        $("#user_details").modal("show");
+    }
+
+    function toggleUserStatus() {
+        var newStatus = $("#status").text() === "LOCKED" ? "NORMAL" : "LOCKED";
+        $("#status").text(newStatus);
+        $("#edit_user_status").toggleClass("orange_bg");
+    }
+
+    function showCreateUserModal() {
+        $('#create_user').modal('show');
+    }
+
+    function showUserDeleteModal(element) {
+        var userId = $(element).data("user-id");
+        var user = userList.find(user => user.id === userId);
+
+        $("#delete_user form").attr("action", "/admin/users/delete/" + userId);
+        $("#delete_user_name").text(user.username);
+        $("#delete_user").modal("show");
+    }
+
+
+</script>
 </body>
 </html>

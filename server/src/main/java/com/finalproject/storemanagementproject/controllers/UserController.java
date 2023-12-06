@@ -33,11 +33,7 @@ public class UserController {
     @GetMapping(value = "/admin/users", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getAllUsers() {
         Iterable<User> users = userService.getAllUsers();
-
-        for (User user : users) {
-            user.setPassword("");
-            user.setAvatar("");
-        }
+        for (User user : users) user.setPassword("");
 
         return ResponseEntity.ok(Map.of("message", "Get all users success", "users", users));
     }
@@ -51,6 +47,23 @@ public class UserController {
         user.setPassword("");
 
         return ResponseEntity.ok(Map.of("message", "Get user success", "user", user));
+    }
+
+    @PostMapping(value = "/admin/users/delete/{id}", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id) {
+        User user = userService.getUserById(id);
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        if (user.getRole().equals(Role.OWNER))
+            return ResponseEntity.badRequest().body(Map.of("message", "Can not delete owner"));
+
+        boolean isDeleted = userService.deleteUser(id);
+        if (!isDeleted)
+            return ResponseEntity.badRequest().body(Map.of("message", "Delete user failed"));
+
+        return ResponseEntity.ok(Map.of("message", "Delete user success", "user", user));
+
     }
 
     @PostMapping(value = "/admin/users/create", consumes = "application/json", produces = "application/json")
@@ -93,7 +106,8 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid avatar url"));
 
         user.setAvatar(avatarUrl);
-        userService.updateUser(user);
+        boolean isUpdated = userService.updateUser(user);
+        if (!isUpdated) return ResponseEntity.badRequest().body(Map.of("message", "Change avatar failed"));
 
         return ResponseEntity.ok(Map.of("message", "Change avatar success", "user", user));
     }
@@ -114,18 +128,10 @@ public class UserController {
 
         newPassword = passwordService.hashPassword(newPassword);
         user.setPassword(newPassword);
-        userService.updateUser(user);
+        boolean isUpdated = userService.updateUser(user);
+        if (!isUpdated) return ResponseEntity.badRequest().body(Map.of("message", "Change password failed"));
 
         return ResponseEntity.ok().body(Map.of("message", "Change password success", "user", user));
     }
 
-    @PostMapping(value = "/admin/users/update/{id}", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @PathVariable User user) {
-        return null;
-    }
-
-    @PostMapping(value = "/admin/users/delete/{id}", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id) {
-        return null;
-    }
 }

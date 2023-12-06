@@ -80,6 +80,30 @@ public class UserService {
         }
     }
 
+    public Object deleteUser(String id) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(headers);
+        try {
+            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
+                    baseUrl + "/admin/users/delete/" + id,
+                    HttpMethod.POST,
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            return getObjectFromApiResponse(apiResponse);
+        } catch (HttpClientErrorException e) {
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
+        }
+    }
+
     public Object changeAvatar(String id, String avatarUrl) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
