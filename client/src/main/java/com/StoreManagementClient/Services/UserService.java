@@ -22,7 +22,7 @@ public class UserService {
 
     @Autowired
     public UserService(@Value("${api.base.url}") String baseUrl, RestTemplate restTemplate) {
-        this.baseUrl = baseUrl + "/users";
+        this.baseUrl = baseUrl;
         this.restTemplate = restTemplate;
     }
 
@@ -33,7 +33,7 @@ public class UserService {
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(headers);
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
-                    baseUrl,
+                    baseUrl + "/admin/users",
                     HttpMethod.GET,
                     requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {
@@ -51,23 +51,19 @@ public class UserService {
         }
     }
 
-    public User getUserById(Long id) {
-        return restTemplate.getForObject(baseUrl + "/" + id, User.class);
-    }
-
     public Object createUser(String email, String role) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, String> payload = new HashMap<>();
-        payload.put("email", email);
-        payload.put("role", role);
+        Map<String, String> body = new HashMap<>();
+        body.put("email", email);
+        body.put("role", role);
 
-        HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
+        HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
-                    baseUrl + "/create",
+                    baseUrl + "/admin/users/create",
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {
@@ -88,13 +84,13 @@ public class UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, String> payload = new HashMap<>();
-        payload.put("avatarUrl", avatarUrl);
-        HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
+        Map<String, String> body = new HashMap<>();
+        body.put("avatarUrl", avatarUrl);
+        HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
-                    baseUrl + "/change-avatar/" + id,
+                    baseUrl + "/users/change-avatar/" + id,
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {
@@ -115,14 +111,14 @@ public class UserService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, String> payload = new HashMap<>();
-        payload.put("newPassword", newPassword);
-        payload.put("confirmPassword", confirmPassword);
-        HttpEntity<?> requestEntity = new HttpEntity<>(payload, headers);
+        Map<String, String> body = new HashMap<>();
+        body.put("newPassword", newPassword);
+        body.put("confirmPassword", confirmPassword);
+        HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
-                    baseUrl + "/change-password/" + id,
+                    baseUrl + "/users/change-password/" + id,
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {

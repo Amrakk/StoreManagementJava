@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
@@ -31,7 +30,7 @@ public class UserController {
         this.passwordService = passwordService;
     }
 
-    @GetMapping(value = "", produces = "application/json")
+    @GetMapping(value = "/admin/users", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getAllUsers() {
         Iterable<User> users = userService.getAllUsers();
 
@@ -43,7 +42,7 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Get all users success", "users", users));
     }
 
-    @GetMapping(value = "/{id}", produces = "application/json")
+    @GetMapping(value = "/admin/users/{id}", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getUserById(@PathVariable String id) {
         User user = userService.getUserById(id);
         if (user == null)
@@ -54,7 +53,7 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Get user success", "user", user));
     }
 
-    @PostMapping(value = "/create", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/admin/users/create", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Map<String, Object>> createUser(@RequestBody Map<String, String> body) {
         String email = body.get("email");
         String role = body.get("role").toUpperCase();
@@ -84,7 +83,7 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Create user success", "user", user));
     }
 
-    @PostMapping(value = "/change-avatar/{id}", produces = "application/json")
+    @PostMapping(value = "/users/change-avatar/{id}", produces = "application/json")
     public ResponseEntity<Map<String, Object>> changeAvatar(@PathVariable String id, @RequestBody Map<String, String> body) {
         String avatarUrl = body.get("avatarUrl");
         User user = userService.getUserById(id);
@@ -99,7 +98,7 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "Change avatar success", "user", user));
     }
 
-    @PostMapping(value = "/change-password/{id}", produces = "application/json")
+    @PostMapping(value = "/users/change-password/{id}", produces = "application/json")
     public ResponseEntity<Map<String, Object>> changePassword(@PathVariable String id, @RequestBody Map<String, String> body) {
         String newPassword = body.get("newPassword");
         String confirmPassword = body.get("confirmPassword");
@@ -120,12 +119,12 @@ public class UserController {
         return ResponseEntity.ok().body(Map.of("message", "Change password success", "user", user));
     }
 
-    @PostMapping(value = "/update/{id}", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/admin/users/update/{id}", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @PathVariable User user) {
         return null;
     }
 
-    @PostMapping(value = "/delete/{id}", produces = "application/json")
+    @PostMapping(value = "/admin/users/delete/{id}", produces = "application/json")
     public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id) {
         return null;
     }

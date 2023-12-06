@@ -29,8 +29,8 @@ public class AuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        Map<String, String> requestBody = Map.of("username", username, "password", password);
-        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(requestBody, headers);
+        Map<String, String> body = Map.of("username", username, "password", password);
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(body, headers);
 
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(

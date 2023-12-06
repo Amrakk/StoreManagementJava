@@ -48,9 +48,8 @@ public class HomeController implements ErrorController {
         if (status != null) {
             int statusCode = Integer.parseInt(status.toString());
             if (statusCode == 404) return "Error/404";
-            else if (statusCode == 401) return "Auth/login";
+            else if (statusCode == 401) return "Error/401";
         }
         return "Error/500";
     }
-
 }

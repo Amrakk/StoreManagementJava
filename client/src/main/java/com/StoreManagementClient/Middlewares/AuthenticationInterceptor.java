@@ -7,15 +7,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -43,7 +42,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             response.sendRedirect(contextPath + "/auth/login");
             return false;
         }
-        
+
         request.setAttribute("authenticatedUser", user);
         if (requestURI.equals("/") || requestURI.equals("/home")) response.sendRedirect("/Home");
         return true;
@@ -65,20 +64,23 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
 
+        Map<String, Object> body = new HashMap<>();
+        if (request.getRequestURI().contains("admin")) body.put("resource", "ADMIN");
+        else if (request.getRequestURI().contains("owner")) body.put("resource", "OWNER");
+        else body.put("resource", "EMPLOYEE");
+
+        HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
                     baseUrl + "/auth/validate",
                     HttpMethod.POST,
-                    new HttpEntity<>(headers),
+                    requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {
                     }
             );
 
-            Map<String, Object> responseBody = apiResponse.getBody();
             User user = null;
-
-//            System.out.println(responseBody);
-//            System.out.println(responseBody.containsKey("user"));
+            Map<String, Object> responseBody = apiResponse.getBody();
 
             if (responseBody == null || !responseBody.containsKey("user")) {
                 Cookie cookie = new Cookie("token", "");
@@ -90,6 +92,9 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
             return user;
         } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED)
+                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You don't have permission to access this resource");
+            
             return null;
         }
     }
