@@ -58,6 +58,28 @@ public class AuthService {
         }
     }
 
+    public Object resetPassword(String token, String password) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = Map.of("token", token, "password", password);
+        HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
+                    baseUrl + "/reset-password",
+                    HttpMethod.POST,
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            return apiResponse.getBody();
+        } catch (HttpClientErrorException e) {
+            return null;
+        }
+    }
+
     public void logout(HttpServletResponse response) {
         Cookie tokenCookie = new Cookie("token", "");
         tokenCookie.setPath("/");

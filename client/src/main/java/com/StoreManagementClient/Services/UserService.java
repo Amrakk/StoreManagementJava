@@ -26,14 +26,17 @@ public class UserService {
         this.restTemplate = restTemplate;
     }
 
-    public List<User> getAllUsers() {
+    public List<User> getUsers(String text) {
+        String url = baseUrl + "/admin/users";
+        if (text != null && !text.isEmpty()) url += "?text=" + text;
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Map<String, String>> requestEntity = new HttpEntity<>(headers);
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
-                    baseUrl + "/admin/users",
+                    url,
                     HttpMethod.GET,
                     requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {
@@ -64,6 +67,35 @@ public class UserService {
         try {
             ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
                     baseUrl + "/admin/users/create",
+                    HttpMethod.POST,
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            return getObjectFromApiResponse(apiResponse);
+        } catch (HttpClientErrorException e) {
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
+        }
+    }
+
+    public Object updateUser(String id, String role, String status) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        Map<String, String> body = new HashMap<>();
+        body.put("role", role);
+        body.put("status", status);
+
+        HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
+                    baseUrl + "/admin/users/update/" + id,
                     HttpMethod.POST,
                     requestEntity,
                     new ParameterizedTypeReference<Map<String, Object>>() {

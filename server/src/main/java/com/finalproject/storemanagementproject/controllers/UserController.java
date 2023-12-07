@@ -31,11 +31,14 @@ public class UserController {
     }
 
     @GetMapping(value = "/admin/users", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getAllUsers() {
-        Iterable<User> users = userService.getAllUsers();
+    public ResponseEntity<Map<String, Object>> getUsers(@RequestParam(required = false) String text) {
+        Iterable<User> users = null;
+        if (text != null && !text.isEmpty()) users = userService.searchUser(text);
+        else users = userService.getAllUsers();
+
         for (User user : users) user.setPassword("");
 
-        return ResponseEntity.ok(Map.of("message", "Get all users success", "users", users));
+        return ResponseEntity.ok(Map.of("message", "Get users success", "users", users));
     }
 
     @GetMapping(value = "/admin/users/{id}", produces = "application/json")
@@ -47,23 +50,6 @@ public class UserController {
         user.setPassword("");
 
         return ResponseEntity.ok(Map.of("message", "Get user success", "user", user));
-    }
-
-    @PostMapping(value = "/admin/users/delete/{id}", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id) {
-        User user = userService.getUserById(id);
-        if (user == null)
-            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
-
-        if (user.getRole().equals(Role.OWNER))
-            return ResponseEntity.badRequest().body(Map.of("message", "Can not delete owner"));
-
-        boolean isDeleted = userService.deleteUser(id);
-        if (!isDeleted)
-            return ResponseEntity.badRequest().body(Map.of("message", "Delete user failed"));
-
-        return ResponseEntity.ok(Map.of("message", "Delete user success", "user", user));
-
     }
 
     @PostMapping(value = "/admin/users/create", consumes = "application/json", produces = "application/json")
@@ -94,6 +80,51 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", "Create user failed"));
 
         return ResponseEntity.ok(Map.of("message", "Create user success", "user", user));
+    }
+
+    @PostMapping(value = "/admin/users/update/{id}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String role = body.get("role").toUpperCase();
+        String status = body.get("status").toUpperCase();
+
+        if (role.isEmpty() || status.isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
+
+        if (!userService.isValidRole(role))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
+
+        if (!userService.isValidStatus(status))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid status"));
+
+        User user = userService.getUserById(id);
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        user.setRole(Role.valueOf(role));
+        user.setStatus(Status.valueOf(status));
+
+        boolean isUpdated = userService.updateUser(user);
+        if (!isUpdated)
+            return ResponseEntity.badRequest().body(Map.of("message", "Update user failed"));
+
+        return ResponseEntity.ok(Map.of("message", "Update user success", "user", user));
+    }
+
+    @PostMapping(value = "/admin/users/delete/{id}", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String id) {
+        User user = userService.getUserById(id);
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        if (user.getRole().equals(Role.OWNER))
+            return ResponseEntity.badRequest().body(Map.of("message", "Can not delete owner"));
+
+        boolean isDeleted = userService.deleteUser(id);
+        if (!isDeleted)
+            return ResponseEntity.badRequest().body(Map.of("message", "Delete user failed"));
+
+        return ResponseEntity.ok(Map.of("message", "Delete user success", "user", user));
+
     }
 
     @PostMapping(value = "/users/change-avatar/{id}", produces = "application/json")

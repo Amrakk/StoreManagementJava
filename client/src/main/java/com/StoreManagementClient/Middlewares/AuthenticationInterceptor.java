@@ -36,7 +36,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 requestURI.contains("js") ||
                 requestURI.contains("css") ||
                 requestURI.contains("img") ||
-                requestURI.contains("vendors"))
+                requestURI.contains("vendors") ||
+                requestURI.contains("reset-password"))
             return true;
 
         User user = isAuthenticated(request, response);
@@ -49,7 +50,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         }
 
         request.setAttribute("authenticatedUser", user);
-        if (requestURI.equals("/") || requestURI.equals("/home")) response.sendRedirect("/Home");
+        if (requestURI.isEmpty() || requestURI.equals("/") || requestURI.equals("/home"))
+            response.sendRedirect("/Home");
         return true;
     }
 
