@@ -39,11 +39,28 @@ public class AuthController {
     }
 
     @GetMapping("/reset-password")
-    public String resetPassword(@RequestParam(required = false) String token, Model model) {
+    public String resetPassword(@RequestParam(required = false) String token) {
         if (token == null || token.isEmpty())
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token not found");
-        
-        System.out.println(token);
+
+        return "Auth/reset_password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPasswordPost(@RequestParam(required = false) String token,
+                                    @RequestParam("newPassword") String password,
+                                    @RequestParam("confirmPassword") String confirmPassword,
+                                    Model model) {
+
+        if (token == null || token.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token not found");
+
+        Object response = authService.resetPassword(token, password, confirmPassword);
+        if (response instanceof String)
+            model.addAttribute("error", response);
+        else
+            model.addAttribute("success", "Reset password successfully. Please login again!");
+
         return "Auth/reset_password";
     }
 

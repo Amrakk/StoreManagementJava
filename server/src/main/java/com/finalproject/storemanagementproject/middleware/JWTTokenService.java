@@ -11,14 +11,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Service
-public class TokenService {
+public class JWTTokenService {
     private final JwtEncoder encoder;
     private final JwtDecoder decoder;
 
     @Value("${jwt.expiration.ms}")
     private int expiration;
 
-    public TokenService(JwtEncoder encoder, JwtDecoder decoder) {
+    public JWTTokenService(JwtEncoder encoder, JwtDecoder decoder) {
         this.encoder = encoder;
         this.decoder = decoder;
     }
@@ -49,4 +49,5 @@ public class TokenService {
             return null;
         }
     }
+
 }

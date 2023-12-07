@@ -2,6 +2,7 @@ package com.finalproject.storemanagementproject.controllers;
 
 import com.finalproject.storemanagementproject.middleware.MailService;
 import com.finalproject.storemanagementproject.middleware.PasswordService;
+import com.finalproject.storemanagementproject.middleware.ResetPasswordTokenService;
 import com.finalproject.storemanagementproject.models.Role;
 import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
@@ -19,12 +20,17 @@ public class UserController {
     private final UserService userService;
     private final PasswordService passwordService;
     private final MailService mailService;
+    private final ResetPasswordTokenService rPTService;
 
     @Value("${default.avatar.url}")
     private String defaultAvatarUrl;
 
     @Autowired
-    public UserController(UserService userService, PasswordService passwordService, MailService mailService) {
+    public UserController(UserService userService,
+                          MailService mailService,
+                          PasswordService passwordService,
+                          ResetPasswordTokenService rPTService) {
+        this.rPTService = rPTService;
         this.mailService = mailService;
         this.userService = userService;
         this.passwordService = passwordService;
@@ -60,7 +66,8 @@ public class UserController {
         if (email.isEmpty() || role.isEmpty())
             return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
 
-        if (!email.matches("^\\w+@(" + mailService.DOMAIN + ")$"))
+        String domain = mailService.HOST.split("smtp.")[1];
+        if (!email.matches("^\\w+@(" + domain + ")$"))
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or domain"));
 
         if (userService.getUserByEmail(email) != null)
@@ -124,7 +131,22 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", "Delete user failed"));
 
         return ResponseEntity.ok(Map.of("message", "Delete user success", "user", user));
+    }
 
+    @GetMapping(value = "/admin/users/reset-password/{id}", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> resetPassword(@PathVariable String id) {
+        User user = userService.getUserById(id);
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        String token = rPTService.createToken(id);
+        if (token == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "Create token failed"));
+
+        if (!mailService.sendResetPasswordMail(user.getEmail(), token))
+            return ResponseEntity.badRequest().body(Map.of("message", "Send reset password mail failed"));
+
+        return ResponseEntity.ok(Map.of("message", "Send reset password mail success", "user", user));
     }
 
     @PostMapping(value = "/users/change-avatar/{id}", produces = "application/json")
@@ -151,7 +173,7 @@ public class UserController {
         User user = userService.getUserById(id);
         if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
-        if (newPassword.isEmpty())
+        if (newPassword == null || newPassword.isEmpty())
             return ResponseEntity.badRequest().body(Map.of("message", "Password is required"));
 
         if (!newPassword.equals(confirmPassword))

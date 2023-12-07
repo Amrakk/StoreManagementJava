@@ -35,6 +35,20 @@ public class UserController {
         return "Admin/user";
     }
 
+    @GetMapping("/admin/users/reset-password/{id}")
+    public String resetPassword(@PathVariable String id, RedirectAttributes redirectAttrs, Model model) {
+        Object response = userService.resetPassword(id);
+
+        if (response instanceof String)
+            redirectAttrs.addFlashAttribute("error", response);
+        else
+            redirectAttrs.addFlashAttribute("success", "Send reset password mail success");
+
+        redirectAttrs.addFlashAttribute("users", model.getAttribute("users"));
+
+        return "redirect:/admin/users";
+    }
+
     @PostMapping("/admin/users/create")
     public String createUser(@RequestParam("email") String email, @RequestParam("role") String role, RedirectAttributes redirectAttrs) {
         Object response = userService.createUser(email, role);

@@ -178,7 +178,10 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success">Reset Password</button>
+                        <a th:href="@{/admin/users/reset-password/{id}(id=${user.id})}"
+                           class="btn btn-success border-0" id="reset_password">
+                            Reset Password
+                        </a>
                         <button type="submit" class="btn btn-warning text-white">Update</button>
                     </div>
                 </form>
@@ -279,6 +282,7 @@
         $("#email").text(user.email);
         $("#status").text(user.status);
         $("#input_status").val(user.status);
+        $("#reset_password").attr("href", "/admin/users/reset-password/" + userId);
 
         if (user.status === "LOCKED") $("#edit_user_status").addClass("orange_bg");
         else $("#edit_user_status").removeClass("orange_bg");
