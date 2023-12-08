@@ -76,6 +76,9 @@ public class UserController {
         if (!userService.isValidRole(role))
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
 
+        if (role.equals("OWNER"))
+            return ResponseEntity.badRequest().body(Map.of("message", "Can not create owner"));
+
         String username = email.split("@")[0];
         String password = passwordService.hashPassword(username);
 

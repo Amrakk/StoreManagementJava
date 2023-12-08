@@ -51,7 +51,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid credentials!"));
 
         if (user.getStatus().toString().equals("LOCKED"))
-            return ResponseEntity.badRequest().body(Map.of("message", "Your account has been locked! Please contact admin to unlock your account!"));
+            return ResponseEntity.badRequest().body(Map.of("message", "Please contact admin to unlock your account!"));
 
         if (user.getUsername().equals(password))
             return ResponseEntity.badRequest().body(Map.of("message", "Please contact admin to reset your password!"));

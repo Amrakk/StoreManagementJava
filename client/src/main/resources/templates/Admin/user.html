@@ -157,9 +157,12 @@
                                     <div class="text-center profile-details d-flex justify-content-center flex-column align-items-center">
                                         <h3 id="name">Duy Nguyen</h3>
                                         <div class="col-6" onclick="toggleCard()">
+                                            <input name="oldRole" type="hidden" id="old_role">
                                             <select name="role" class="nice_Select2 nice_Select_line wide m-2"
                                                     id="edit_user_role">
-                                                <option value="OWNER">OWNER</option>
+                                                <option th:if="${user.getRole().toString() == 'OWNER'}" value="OWNER">
+                                                    OWNER
+                                                </option>
                                                 <option value="ADMIN">ADMIN</option>
                                                 <option value="EMPLOYEE">EMPLOYEE</option>
                                             </select>
@@ -278,6 +281,7 @@
         $("#edit_form").attr("action", "/admin/users/update/" + userId);
         $("#avatar").attr("src", user.avatar);
         $("#name").text(user.username);
+        $("#old_role").val(user.role);
         $("#edit_user_role").val(user.role).niceSelect("update");
         $("#email").text(user.email);
         $("#status").text(user.status);

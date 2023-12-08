@@ -72,8 +72,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         headers.set("Authorization", "Bearer " + token);
 
         Map<String, Object> body = new HashMap<>();
-        if (request.getRequestURI().contains("admin")) body.put("resource", "ADMIN");
-        else if (request.getRequestURI().contains("owner")) body.put("resource", "OWNER");
+        if (isOwnerOperations(request)) body.put("resource", "OWNER");
+        else if (request.getRequestURI().contains("admin")) body.put("resource", "ADMIN");
         else body.put("resource", "EMPLOYEE");
 
         HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
@@ -104,5 +104,19 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
             return null;
         }
+    }
+
+    private boolean isOwnerOperations(HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        if (requestURI.contains("admin")) {
+            if (requestURI.contains("create") || requestURI.contains("update")) {
+                String role = request.getParameter("role");
+                String oldRole = request.getParameter("oldRole");
+                if (role != null && role.equals("OWNER")) return true;
+                if (oldRole != null && oldRole.equals("OWNER")) return true;
+            }
+        }
+
+        return requestURI.contains("owner");
     }
 }
