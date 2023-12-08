@@ -25,14 +25,28 @@ public class UserController {
     }
 
     @GetMapping("/admin/users")
-    public String userList(Model model, HttpServletRequest request) {
+    public String searchUser(@RequestParam(required = false) String text, Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("authenticatedUser");
         model.addAttribute("user", user);
 
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.getUsers(text);
         model.addAttribute("users", users);
 
         return "Admin/user";
+    }
+
+    @GetMapping("/admin/users/reset-password/{id}")
+    public String resetPassword(@PathVariable String id, RedirectAttributes redirectAttrs, Model model) {
+        Object response = userService.resetPassword(id);
+
+        if (response instanceof String)
+            redirectAttrs.addFlashAttribute("error", response);
+        else
+            redirectAttrs.addFlashAttribute("success", "Send reset password mail success");
+
+        redirectAttrs.addFlashAttribute("users", model.getAttribute("users"));
+
+        return "redirect:/admin/users";
     }
 
     @PostMapping("/admin/users/create")
@@ -42,9 +56,25 @@ public class UserController {
         if (response instanceof String)
             redirectAttrs.addFlashAttribute("error", response);
         else
-            redirectAttrs.addFlashAttribute("success", "Create user success");
+            redirectAttrs.addFlashAttribute("success", "Create user success! A reset password mail has been sent to user email");
 
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.getUsers(null);
+        redirectAttrs.addFlashAttribute("users", users);
+
+        return "redirect:/admin/users";
+    }
+
+    @PostMapping("/admin/users/update/{id}")
+    public String updateUser(@PathVariable String id, @RequestParam("role") String role,
+                             @RequestParam("status") String status, RedirectAttributes redirectAttrs) {
+        Object response = userService.updateUser(id, role, status);
+
+        if (response instanceof String)
+            redirectAttrs.addFlashAttribute("error", response);
+        else
+            redirectAttrs.addFlashAttribute("success", "Update user success");
+
+        List<User> users = userService.getUsers(null);
         redirectAttrs.addFlashAttribute("users", users);
 
         return "redirect:/admin/users";
@@ -59,7 +89,7 @@ public class UserController {
         else
             redirectAttrs.addFlashAttribute("success", "Delete user success");
 
-        List<User> users = userService.getAllUsers();
+        List<User> users = userService.getUsers(null);
         redirectAttrs.addFlashAttribute("users", users);
 
         return "redirect:/admin/users";

@@ -2,6 +2,7 @@ package com.finalproject.storemanagementproject.controllers;
 
 import com.finalproject.storemanagementproject.middleware.MailService;
 import com.finalproject.storemanagementproject.middleware.PasswordService;
+import com.finalproject.storemanagementproject.middleware.ResetPasswordTokenService;
 import com.finalproject.storemanagementproject.models.Role;
 import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
@@ -19,23 +20,31 @@ public class UserController {
     private final UserService userService;
     private final PasswordService passwordService;
     private final MailService mailService;
+    private final ResetPasswordTokenService rPTService;
 
     @Value("${default.avatar.url}")
     private String defaultAvatarUrl;
 
     @Autowired
-    public UserController(UserService userService, PasswordService passwordService, MailService mailService) {
+    public UserController(UserService userService,
+                          MailService mailService,
+                          PasswordService passwordService,
+                          ResetPasswordTokenService rPTService) {
+        this.rPTService = rPTService;
         this.mailService = mailService;
         this.userService = userService;
         this.passwordService = passwordService;
     }
 
     @GetMapping(value = "/admin/users", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getAllUsers() {
-        Iterable<User> users = userService.getAllUsers();
+    public ResponseEntity<Map<String, Object>> getUsers(@RequestParam(required = false) String text) {
+        Iterable<User> users = null;
+        if (text != null && !text.isEmpty()) users = userService.searchUser(text);
+        else users = userService.getAllUsers();
+
         for (User user : users) user.setPassword("");
 
-        return ResponseEntity.ok(Map.of("message", "Get all users success", "users", users));
+        return ResponseEntity.ok(Map.of("message", "Get users success", "users", users));
     }
 
     @GetMapping(value = "/admin/users/{id}", produces = "application/json")
@@ -47,6 +56,72 @@ public class UserController {
         user.setPassword("");
 
         return ResponseEntity.ok(Map.of("message", "Get user success", "user", user));
+    }
+
+    @PostMapping(value = "/admin/users/create", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String role = body.get("role").toUpperCase();
+
+        if (email.isEmpty() || role.isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
+
+        String domain = mailService.HOST.split("smtp.")[1];
+        if (!email.matches("^\\w+@(" + domain + ")$"))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or domain"));
+
+        if (userService.getUserByEmail(email) != null)
+            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
+
+        if (!userService.isValidRole(role))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
+
+        if (role.equals("OWNER"))
+            return ResponseEntity.badRequest().body(Map.of("message", "Can not create owner"));
+
+        String username = email.split("@")[0];
+        String password = passwordService.hashPassword(username);
+
+        User user = new User(null, email, username, password, Status.NORMAL, Role.valueOf(role), defaultAvatarUrl);
+
+        boolean isAdded = userService.addUser(user);
+
+        if (!isAdded)
+            return ResponseEntity.badRequest().body(Map.of("message", "Create user failed"));
+
+        ResponseEntity<Map<String, Object>> response = resetPassword(user.getId());
+        if (response.getStatusCode().isError())
+            return response;
+
+        return ResponseEntity.ok(Map.of("message", "Create user success. A reset password mail has been sent to user", "user", user));
+    }
+
+    @PostMapping(value = "/admin/users/update/{id}", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> updateUser(@PathVariable String id, @RequestBody Map<String, String> body) {
+        String role = body.get("role").toUpperCase();
+        String status = body.get("status").toUpperCase();
+
+        if (role.isEmpty() || status.isEmpty())
+            return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
+
+        if (!userService.isValidRole(role))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
+
+        if (!userService.isValidStatus(status))
+            return ResponseEntity.badRequest().body(Map.of("message", "Invalid status"));
+
+        User user = userService.getUserById(id);
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        user.setRole(Role.valueOf(role));
+        user.setStatus(Status.valueOf(status));
+
+        boolean isUpdated = userService.updateUser(user);
+        if (!isUpdated)
+            return ResponseEntity.badRequest().body(Map.of("message", "Update user failed"));
+
+        return ResponseEntity.ok(Map.of("message", "Update user success", "user", user));
     }
 
     @PostMapping(value = "/admin/users/delete/{id}", produces = "application/json")
@@ -63,37 +138,22 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", "Delete user failed"));
 
         return ResponseEntity.ok(Map.of("message", "Delete user success", "user", user));
-
     }
 
-    @PostMapping(value = "/admin/users/create", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> createUser(@RequestBody Map<String, String> body) {
-        String email = body.get("email");
-        String role = body.get("role").toUpperCase();
+    @GetMapping(value = "/admin/users/reset-password/{id}", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> resetPassword(@PathVariable String id) {
+        User user = userService.getUserById(id);
+        if (user == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
-        if (email.isEmpty() || role.isEmpty())
-            return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
+        String token = rPTService.createToken(id);
+        if (token == null)
+            return ResponseEntity.badRequest().body(Map.of("message", "Create token failed"));
 
-        if (!email.matches("^\\w+@(" + mailService.DOMAIN + ")$"))
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid email or domain"));
+        if (!mailService.sendResetPasswordMail(user.getEmail(), token))
+            return ResponseEntity.badRequest().body(Map.of("message", "Send reset password mail failed"));
 
-        if (userService.getUserByEmail(email) != null)
-            return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
-
-        if (!userService.isValidRole(role))
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
-
-        String username = email.split("@")[0];
-        String password = passwordService.hashPassword(username);
-
-        User user = new User(null, email, username, password, Status.NORMAL, Role.valueOf(role), defaultAvatarUrl);
-
-        boolean isAdded = userService.addUser(user);
-
-        if (!isAdded)
-            return ResponseEntity.badRequest().body(Map.of("message", "Create user failed"));
-
-        return ResponseEntity.ok(Map.of("message", "Create user success", "user", user));
+        return ResponseEntity.ok(Map.of("message", "Send reset password mail success", "user", user));
     }
 
     @PostMapping(value = "/users/change-avatar/{id}", produces = "application/json")
@@ -120,11 +180,14 @@ public class UserController {
         User user = userService.getUserById(id);
         if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
 
-        if (newPassword.isEmpty())
+        if (newPassword == null || newPassword.isEmpty())
             return ResponseEntity.badRequest().body(Map.of("message", "Password is required"));
 
         if (!newPassword.equals(confirmPassword))
             return ResponseEntity.badRequest().body(Map.of("message", "Confirm password not match"));
+
+        if (newPassword.equals(user.getUsername()))
+            return ResponseEntity.badRequest().body(Map.of("message", "Password must be different from username"));
 
         newPassword = passwordService.hashPassword(newPassword);
         user.setPassword(newPassword);
