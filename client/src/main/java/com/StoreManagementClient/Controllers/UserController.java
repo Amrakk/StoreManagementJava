@@ -56,7 +56,7 @@ public class UserController {
         if (response instanceof String)
             redirectAttrs.addFlashAttribute("error", response);
         else
-            redirectAttrs.addFlashAttribute("success", "Create user success");
+            redirectAttrs.addFlashAttribute("success", "Create user success! A reset password mail has been sent to user email");
 
         List<User> users = userService.getUsers(null);
         redirectAttrs.addFlashAttribute("users", users);

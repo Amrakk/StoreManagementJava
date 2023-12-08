@@ -1,7 +1,6 @@
 package com.StoreManagementClient.Services;
 
 import com.StoreManagementClient.Middlewares.Converter;
-import com.StoreManagementClient.Models.User;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ public class AuthService {
         this.restTemplate = restTemplate;
     }
 
-    public User login(String username, String password, HttpServletResponse response) {
+    public Object login(String username, String password, HttpServletResponse response) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -50,14 +49,13 @@ public class AuthService {
             tokenCookie.setPath("/");
             response.addCookie(tokenCookie);
 
-            User user = null;
-            Map<String, Object> responseBody = apiResponse.getBody();
-            if (responseBody != null && responseBody.containsKey("user"))
-                user = Converter.convertToUser((Map<String, Object>) responseBody.get("user"));
-
-            return user;
+            return getObjectFromApiResponse(apiResponse);
         } catch (HttpClientErrorException e) {
-            return null;
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
         }
     }
 

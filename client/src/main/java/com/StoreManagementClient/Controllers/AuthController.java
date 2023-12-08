@@ -69,13 +69,17 @@ public class AuthController {
                             @RequestParam("password") String password,
                             HttpServletResponse response,
                             Model model, RedirectAttributes redirectAttrs) {
-        User user = authService.login(username, password, response);
-        if (user == null) {
+
+        Object res = authService.login(username, password, response);
+        if (res == null) {
             model.addAttribute("error", "Invalid credentials!");
+            return "Auth/login";
+        } else if (res instanceof String) {
+            model.addAttribute("error", res);
             return "Auth/login";
         }
 
-        redirectAttrs.addFlashAttribute("user", user);
+        redirectAttrs.addFlashAttribute("user", res);
         return "redirect:/Home";
     }
 

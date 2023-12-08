@@ -46,9 +46,15 @@ public class AuthController {
 
         User user = userService.getUserByUsername(username);
         if (user == null ||
-                !passwordService.checkPassword(password, user.getPassword()) ||
-                user.getStatus().toString().equals("LOCKED"))
+                !passwordService.checkPassword(password, user.getPassword())
+        )
             return ResponseEntity.badRequest().body(Map.of("message", "Invalid credentials!"));
+
+        if (user.getStatus().toString().equals("LOCKED"))
+            return ResponseEntity.badRequest().body(Map.of("message", "Your account has been locked! Please contact admin to unlock your account!"));
+
+        if (user.getUsername().equals(password))
+            return ResponseEntity.badRequest().body(Map.of("message", "Please contact admin to reset your password!"));
 
         String token = JWTTokenService.generateToken(user);
         return ResponseEntity.ok()
@@ -77,6 +83,9 @@ public class AuthController {
 
         if (!newPassword.equals(confirmPassword))
             return ResponseEntity.badRequest().body(Map.of("message", "Password and confirm password not match"));
+
+        if (newPassword.equals(user.getUsername()))
+            return ResponseEntity.badRequest().body(Map.of("message", "Password must be different from username"));
 
         String hashedPassword = passwordService.hashPassword(newPassword);
         user.setPassword(hashedPassword);

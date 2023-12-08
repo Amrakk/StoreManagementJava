@@ -86,7 +86,11 @@ public class UserController {
         if (!isAdded)
             return ResponseEntity.badRequest().body(Map.of("message", "Create user failed"));
 
-        return ResponseEntity.ok(Map.of("message", "Create user success", "user", user));
+        ResponseEntity<Map<String, Object>> response = resetPassword(user.getId());
+        if (response.getStatusCode().isError())
+            return response;
+
+        return ResponseEntity.ok(Map.of("message", "Create user success. A reset password mail has been sent to user", "user", user));
     }
 
     @PostMapping(value = "/admin/users/update/{id}", consumes = "application/json", produces = "application/json")
@@ -178,6 +182,9 @@ public class UserController {
 
         if (!newPassword.equals(confirmPassword))
             return ResponseEntity.badRequest().body(Map.of("message", "Confirm password not match"));
+
+        if (newPassword.equals(user.getUsername()))
+            return ResponseEntity.badRequest().body(Map.of("message", "Password must be different from username"));
 
         newPassword = passwordService.hashPassword(newPassword);
         user.setPassword(newPassword);

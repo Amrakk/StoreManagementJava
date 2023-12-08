@@ -29,7 +29,7 @@
                                     </div>
                                     <p>
                                         <span th:if="${error}"
-                                              class="text-danger">Invalid username or password.
+                                              class="text-danger" th:text="${error}">Invalid username or password.
                                         </span>
                                     </p>
                                     <a href="#" class="btn_1 full_width text-center" onclick="formSubmit()">Login</a>
