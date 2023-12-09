@@ -18,6 +18,7 @@ public class Order {
 	private String customerId;
 	private String userId;
 	private double totalPrice;
+	private Status orderStatus;
 	@CreatedDate
 	private LocalDateTime createdAt;
 	@LastModifiedDate
