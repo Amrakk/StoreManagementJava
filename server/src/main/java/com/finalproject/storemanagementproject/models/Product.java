@@ -18,7 +18,7 @@ public class Product {
 	private Category category;
 	private double importPrice;
 	private double retailPrice;
-	private String QRCode;
+	private String barcode;
 	private String illustrator;
 	private int importedQuantity;
 	@CreatedDate
