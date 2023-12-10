@@ -13,8 +13,8 @@ public class ProductService {
 	@Autowired
 	private ProductRepository productRepository;
 	
-	public Product findByQRCode(String QRCode) {
-		return productRepository.findByQRCode(QRCode);
+	public Product findByBarCode(String barcode) {
+		return productRepository.findByBarCode(barcode).orElse(null);
 	}
 	
 	public List<Product> findProductByName(String name) {

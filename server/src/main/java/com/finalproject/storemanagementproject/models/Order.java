@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.Data;
@@ -21,7 +20,7 @@ public class Order {
 	private User user;
 	private double totalPrice;
 	private Status orderStatus;
-	private List<Product> products;
+	private List<OrderProduct> orderProducts;
 	@CreatedDate
 	private LocalDateTime createdAt;
 	@LastModifiedDate
