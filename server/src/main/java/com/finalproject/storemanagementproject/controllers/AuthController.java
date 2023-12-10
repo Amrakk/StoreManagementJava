@@ -19,7 +19,7 @@ public class AuthController {
 
     public static final String ADMIN_RESOURCE = "ADMIN";
     public static final String OWNER_RESOURCE = "OWNER";
-    public static final HttpStatus UNAUTHORIZED = HttpStatus.UNAUTHORIZED;
+    public static final HttpStatus FORBIDDEN = HttpStatus.FORBIDDEN;
     public static final String INVALID_TOKEN_MESSAGE = "Invalid token";
     public static final String NO_PERMISSION_MESSAGE = "You don't have permission to access this resource";
 
@@ -104,15 +104,16 @@ public class AuthController {
         token = token.substring(7);
         String email = JWTTokenService.validateToken(token);
         User user = userService.getUserByEmail(email);
+
         if (user == null) return ResponseEntity.badRequest().body(Map.of("message", "Invalid token"));
 
         if (resource.equalsIgnoreCase(ADMIN_RESOURCE)) {
             if (!user.getRole().toString().equalsIgnoreCase("ADMIN") && !user.getRole().toString().equalsIgnoreCase("OWNER")) {
-                return ResponseEntity.status(UNAUTHORIZED).body(Map.of("message", NO_PERMISSION_MESSAGE));
+                return ResponseEntity.status(FORBIDDEN).body(Map.of("message", NO_PERMISSION_MESSAGE));
             }
         } else if (resource.equalsIgnoreCase(OWNER_RESOURCE)) {
             if (!user.getRole().toString().equalsIgnoreCase("OWNER")) {
-                return ResponseEntity.status(UNAUTHORIZED).body(Map.of("message", NO_PERMISSION_MESSAGE));
+                return ResponseEntity.status(FORBIDDEN).body(Map.of("message", NO_PERMISSION_MESSAGE));
             }
         }
 
