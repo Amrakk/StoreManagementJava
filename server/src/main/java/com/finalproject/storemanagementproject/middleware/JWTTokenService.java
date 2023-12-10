@@ -25,13 +25,13 @@ public class JWTTokenService {
 
     public String generateToken(User user) {
         Instant now = Instant.now();
-        String scope = user.getRole().toString();
+        String role = user.getRole().toString();
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(expiration, ChronoUnit.MILLIS))
                 .subject(user.getEmail())
-                .claim("scope", scope)
+                .claim("role", role)
                 .build();
 
         var encoderParameters = JwtEncoderParameters.from(JwsHeader.with(MacAlgorithm.HS512).build(), claims);
