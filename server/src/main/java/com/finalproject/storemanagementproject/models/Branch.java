@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 public class Branch {
 	@Id
-	private String id;
+	private String branchId;
 	private String name;
 	private String address;
 }

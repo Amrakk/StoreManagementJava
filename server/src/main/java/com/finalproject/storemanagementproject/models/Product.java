@@ -13,12 +13,12 @@ import lombok.Data;
 @Data
 public class Product {
 	@Id
-	private String id;
+	private String pid;
 	private String name;
 	private Category category;
 	private double importPrice;
 	private double retailPrice;
-	private String QRCode;
+	private String barcode;
 	private String illustrator;
 	private int importedQuantity;
 	@CreatedDate
