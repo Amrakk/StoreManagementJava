@@ -1,6 +1,8 @@
 package com.finalproject.storemanagementproject.services;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -74,5 +76,20 @@ public class PaymentService {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public List<Payment> getPaymentByBetweenDate(LocalDate staretDate, LocalDate endDate) {
+		return paymentRepository.findByPaymentTimeBetween(staretDate, endDate);
+	}
+	
+	public List<Payment> getPaymentsInCurrentMonth(LocalDate currentDate) {
+        LocalDate startOfMonth = currentDate.withDayOfMonth(1);
+        LocalDate endOfMonth = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
+
+        return paymentRepository.findByPaymentTimeBetween(startOfMonth, endOfMonth);
+    }
+
+	public List<Payment> getPaymentByStatusAtDate(Status completed, LocalDate startDate, LocalDate endDate) {
+		return paymentRepository.findByStatusAndPaymentTimeBetween(completed, startDate, endDate);
 	}
 }

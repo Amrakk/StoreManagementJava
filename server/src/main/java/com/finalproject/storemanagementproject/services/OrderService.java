@@ -87,4 +87,19 @@ public class OrderService {
 		return null;
 	}
 
+	public List<Order> getOrdersByStatus(Status status) {
+		if (status != null) {
+			return orderRepository.findByStatus(status);
+		} else {
+			return orderRepository.findAll();
+		}
+	}
+
+	public List<Order> getOrdersByTimeAndStatus(LocalDateTime startDate, LocalDateTime endDate, Status status) {
+		if (status != null) {
+			return orderRepository.findByCreatedAtBetweenAndStatus(startDate, endDate, status);
+		} else {
+			return orderRepository.findByCreatedAtBetween(startDate, endDate);
+		}
+	}
 }

@@ -103,7 +103,7 @@ public class TransactionController {
         return ResponseEntity.ok(new APIResponse<>(HTTP_CODE, url, null));
     }
 	
-	@PostMapping("/orders/{oid}/updateStatus")
+	@PostMapping("/orders/{oid}/update-status")
     public ResponseEntity<APIResponse<Order>> updateOrderStatus(
             @PathVariable String oid,
             @RequestParam Status newStatus) {
