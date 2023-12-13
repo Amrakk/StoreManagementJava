@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:8080';
+const baseURL = 'http://localhost:8080/api';
 
 const branch = {
     branchId: "B001",
@@ -180,11 +180,11 @@ function updateTableFromLocalStorage(oid) {
 
 async function getCustomerByPhone(phone) {
     try {
-        let response = await axios.get(`${baseURL}/api/customer?${phone}`);
+        let response = await axios.get(`${baseURL}/customer?phone=${phone}`);
         
         return response.data.data;
     } catch (error) {
-        console.log(error);
+        console.log("Fetching error: " + error);
         window.location.href = '/error';
     }
 }
@@ -199,10 +199,14 @@ async function updateOrderProduct() {
     }
 
     try {
-        let response = await axios.post(`${baseURL}/api/transactions/order/${oid}`, order);
+        let response = await axios.post(`${baseURL}/transactions/order/${oid}`, order, {
+            headers: {
+                'Content-Type' : 'application/json'
+            }
+        });
 
         let updatedOrder = response.data.data;
-        console.log(updatedOrder);    
+        console.log(updatedOrder);
     } catch (error) {
         console.log(error);
     }
@@ -243,11 +247,11 @@ $("#searchlist").on("click", ".list-group-item-action", function() {
 });
 
 $('.confirm-payment').on('click', async e => {
-    let phone = $('#customer-phone-number').value();
+    let phone = $('#customer-phone-number').val();
     let customer = getCustomerByPhone(phone);
 
     if (!customer) {
-        return alert("Invalid customer");    
+        alert("Invalid customer");    
     }
 });
 
