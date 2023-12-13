@@ -1,13 +1,12 @@
 package com.finalproject.storemanagementproject.repositories;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.finalproject.storemanagementproject.models.Product;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.finalproject.storemanagementproject.models.Product;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {

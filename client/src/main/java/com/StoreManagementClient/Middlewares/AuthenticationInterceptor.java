@@ -94,13 +94,14 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 cookie.setMaxAge(0);
                 cookie.setPath("/");
                 response.addCookie(cookie);
-            } else
+            } else {
                 user = Converter.convertToUser((Map<String, Object>) responseBody.get("user"));
+            }
 
             return user;
         } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED)
-                throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You don't have permission to access this resource");
+            if (e.getStatusCode() == HttpStatus.FORBIDDEN)
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to access this resource");
 
             return null;
         }
@@ -109,11 +110,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private boolean isOwnerOperations(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         if (requestURI.contains("admin")) {
-            if (requestURI.contains("create") || requestURI.contains("update")) {
+            if (requestURI.contains("update")) {
                 String role = request.getParameter("role");
                 String oldRole = request.getParameter("oldRole");
-                if (role != null && role.equals("OWNER")) return true;
-                if (oldRole != null && oldRole.equals("OWNER")) return true;
+                if (role != null && !role.equals(oldRole)) return true;
             }
         }
 

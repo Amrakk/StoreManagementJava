@@ -1,17 +1,16 @@
 package com.finalproject.storemanagementproject.services;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.OrderProduct;
 import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
 import com.finalproject.storemanagementproject.repositories.OrderRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -19,29 +18,29 @@ public class OrderService {
 	private OrderRepository orderRepository;
 
 	public Order createOrder(User user) {
-		Order createdOrder = new Order();
-		
-		createdOrder.setUser(user);
+        Order createdOrder = new Order();
 
-		createdOrder.setOrderStatus(Status.PENDING);
-		createdOrder.setCreatedAt(LocalDateTime.now());
+        createdOrder.setUser(user);
 
-		try {
-			orderRepository.insert(createdOrder);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        createdOrder.setOrderStatus(Status.PENDING);
+        createdOrder.setCreatedAt(LocalDateTime.now());
 
-		return createdOrder;
-	}
+        try {
+            orderRepository.insert(createdOrder);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        return createdOrder;
+    }
+	
 	public boolean removeOrder(Order order) {
 		Order existingOrder = getOrderById(order.getOid());
-		
+
 		if (existingOrder == null) {
 			return false;
 		}
-		
+
 		try {
 			orderRepository.delete(existingOrder);
 			return true;
@@ -55,12 +54,12 @@ public class OrderService {
 	public boolean updateOrder(Order order) {
 		try {
 			order.setUpdatedAt(LocalDateTime.now());
-            Order updatedOrder = orderRepository.save(order);
-            return updatedOrder != null;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return false;
-        }
+			Order updatedOrder = orderRepository.save(order);
+			return updatedOrder != null;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
 	}
 
 	public Order getOrderById(String oid) {
