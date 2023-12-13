@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface OrderProductRepository extends MongoRepository<OrderProduct, String> {
-    List<OrderProduct> findAllById(String oid);
+@Repository
+public interface OrderProductRepository extends MongoRepository<OrderProduct, Integer> {
+	List<OrderProduct> findAllByOid(String oid);
 }

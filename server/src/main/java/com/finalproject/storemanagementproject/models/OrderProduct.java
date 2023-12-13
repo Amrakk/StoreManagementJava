@@ -1,17 +1,24 @@
 package com.finalproject.storemanagementproject.models;
 
-//import org.springframework.data.annotation.Id;
-//import org.springframework.data.mongodb.core.mapping.DBRef;
-//import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import org.springframework.data.annotation.Id;
 
 import lombok.Data;
 
-//@Document(collection = "order_products")
+@Document(collection = "order_products")
 @Data
 public class OrderProduct {
-//	@Id
+	@Id
 	private String id;
-	private Product product;
+	@DBRef
+	@Field("products")
+	private String pid;
+	@DBRef
+	@Field("orders")
+	private String oid;
 	private int quantity;
 	private double importPrice;
 	private double retailPrice;
