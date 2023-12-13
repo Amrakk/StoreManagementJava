@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.finalproject.storemanagementproject.models.AnalyticsReport;
 import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.Payment;
 import com.finalproject.storemanagementproject.models.Status;
 
+@Service
 public class AnalyticsService {
 	@Autowired
 	private PaymentService paymentService;

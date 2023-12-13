@@ -2,6 +2,7 @@ package com.finalproject.storemanagementproject.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.finalproject.storemanagementproject.models.Customer;
 import com.finalproject.storemanagementproject.repositories.CustomerRepository;
@@ -17,5 +18,16 @@ public class CustomerService {
 	
 	public Customer findByEmail(String email) {
 		return customerRepository.findByEmail(email).orElse(null);
+	}
+	
+	@Transactional
+	public boolean createCustomer(Customer customer) {
+		try {
+			customerRepository.save(customer);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

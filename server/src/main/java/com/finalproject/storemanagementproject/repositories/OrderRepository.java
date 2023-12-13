@@ -11,7 +11,7 @@ import com.finalproject.storemanagementproject.models.Status;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
-	List<Order> findByStatus(Status status);
-    List<Order> findByCreatedAtBetweenAndStatus(LocalDateTime startDateTime, LocalDateTime endDateTime, Status status);
+	List<Order> findByOrderStatus(Status status);
+    List<Order> findByCreatedAtBetweenAndOrderStatus(LocalDateTime startDateTime, LocalDateTime endDateTime, Status status);
     List<Order> findByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }

@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.finalproject.storemanagementproject.models.Product;
 
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {
-	Optional<Product> findByBarCode(String barcode);
+	Optional<List<Product>> findByBarcode(String barcode);
     List<Product> findByNameContainingIgnoreCase(String name);
+    @Query("{ 'name': { $regex: ?0, $options: 'i' } }")
+    Optional<List<Product>> searchByName(String name);
 }
