@@ -24,5 +24,4 @@ public class StoreManagementClientApplication {
     public static void main(String[] args) {
         SpringApplication.run(StoreManagementClientApplication.class, args);
     }
-
 }

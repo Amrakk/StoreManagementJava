@@ -1,5 +1,6 @@
 package com.finalproject.storemanagementproject.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,11 +14,15 @@ public class ProductService {
 	@Autowired
 	private ProductRepository productRepository;
 	
-	public Product findByBarCode(String barcode) {
-		return productRepository.findByBarCode(barcode).orElse(null);
+	public List<Product> findByBarCode(String barcode) {
+		return productRepository.findByBarcode(barcode).orElse(new ArrayList<>());
 	}
 	
 	public List<Product> findProductByName(String name) {
-		return productRepository.findByNameContainingIgnoreCase(name);
+		return productRepository.searchByName(".*" + name + ".*").orElse(new ArrayList<>());
+	}
+	
+	public Product findByPid(String pid) {
+		return productRepository.findById(pid).orElse(null);
 	}
 }

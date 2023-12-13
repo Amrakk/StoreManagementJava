@@ -9,5 +9,5 @@ import com.finalproject.storemanagementproject.models.OrderProduct;
 
 @Repository
 public interface OrderProductRepository extends MongoRepository<OrderProduct, Integer> {
-	List<OrderProduct> findAllByOrderId(String oid);
+	List<OrderProduct> findAllByOid(String oid);
 }
