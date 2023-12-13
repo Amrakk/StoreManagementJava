@@ -10,6 +10,6 @@ import com.finalproject.storemanagementproject.models.Product;
 
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {
-	Optional<Product> findByBarCode(String barcode);
+	Optional<Product> findByBarcode(String barcode);
     List<Product> findByNameContainingIgnoreCase(String name);
 }

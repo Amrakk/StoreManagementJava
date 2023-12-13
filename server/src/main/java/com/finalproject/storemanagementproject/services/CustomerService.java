@@ -14,8 +14,8 @@ public class CustomerService {
 	public Customer findByPhone(String phone) {
 		return customerRepository.findByPhone(phone).orElse(null);
 	}
-	
-	public Customer findByEmail(String email) {
-		return customerRepository.findByEmail(email).orElse(null);
-	}
+
+//	public Customer findByEmail(String email) {
+//		return customerRepository.findByEmail(email).orElse(null);
+//	}
 }

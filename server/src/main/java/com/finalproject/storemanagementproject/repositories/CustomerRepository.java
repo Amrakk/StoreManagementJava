@@ -10,5 +10,5 @@ import com.finalproject.storemanagementproject.models.Customer;
 @Repository
 public interface CustomerRepository extends MongoRepository<Customer, String> {
 	Optional<Customer> findByPhone(String phone);
-	Optional<Customer> findByEmail(String email);
+//	Optional<Customer> findByEmail(String email);
 }

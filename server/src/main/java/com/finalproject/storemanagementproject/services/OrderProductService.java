@@ -12,7 +12,7 @@ import com.finalproject.storemanagementproject.repositories.OrderProductReposito
 public class OrderProductService {
 	@Autowired
 	private OrderProductRepository orderProductRepository;
-	
+
 	public boolean addOrderProduct(OrderProduct orderProduct) {
 		OrderProduct addedProduct = null;
 		try {
@@ -23,8 +23,8 @@ public class OrderProductService {
 
 		return addedProduct != null;
 	}
-	
+
 	public List<OrderProduct> getAllOrderProduct(String oid) {
-		return orderProductRepository.findAllByOrderId(oid);
+		return orderProductRepository.findAllByOid(oid);
 	}
 }

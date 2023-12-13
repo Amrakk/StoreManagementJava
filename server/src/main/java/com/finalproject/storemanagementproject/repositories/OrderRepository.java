@@ -7,4 +7,5 @@ import com.finalproject.storemanagementproject.models.Order;
 
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
+
 }

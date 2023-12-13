@@ -8,7 +8,9 @@ import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.Payment;
 import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.repositories.PaymentRepository;
+import org.springframework.stereotype.Service;
 
+@Service
 public class PaymentService {
 	@Autowired
 	private PaymentRepository paymentRepository;

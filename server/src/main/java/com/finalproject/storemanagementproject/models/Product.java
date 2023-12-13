@@ -2,15 +2,16 @@ package com.finalproject.storemanagementproject.models;
 
 import java.time.LocalDateTime;
 
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Data;
-
 @Document(collection = "products")
 @Data
+@Getter
+@Setter
 public class Product {
 	@Id
 	private String pid;
