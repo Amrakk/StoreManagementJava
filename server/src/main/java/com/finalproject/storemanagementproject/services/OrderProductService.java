@@ -22,10 +22,8 @@ public class OrderProductService {
 
         return addedProduct != null;
     }
-		return addedProduct != null;
-	}
-	
-	public List<OrderProduct> getAllOrderProduct(String oid) {
-		return orderProductRepository.findAllByOid(oid);
-	}
+
+    public List<OrderProduct> getAllOrderProduct(String oid) {
+        return orderProductRepository.findAllByOid(oid);
+    }
 }
