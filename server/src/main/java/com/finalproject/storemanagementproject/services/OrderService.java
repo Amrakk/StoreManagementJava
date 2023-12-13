@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.finalproject.storemanagementproject.models.Branch;
-import com.finalproject.storemanagementproject.models.Customer;
 import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.OrderProduct;
 import com.finalproject.storemanagementproject.models.Status;
@@ -20,10 +18,9 @@ public class OrderService {
 	@Autowired
 	private OrderRepository orderRepository;
 
-	public Order createOrder(Branch branch, User user) {
+	public Order createOrder(User user) {
 		Order createdOrder = new Order();
 		
-		createdOrder.setBranch(branch);
 		createdOrder.setUser(user);
 
 		createdOrder.setOrderStatus(Status.PENDING);
@@ -39,8 +36,14 @@ public class OrderService {
 	}
 
 	public boolean removeOrder(Order order) {
+		Order existingOrder = getOrderById(order.getOid());
+		
+		if (existingOrder == null) {
+			return false;
+		}
+		
 		try {
-			orderRepository.delete(order);
+			orderRepository.delete(existingOrder);
 			return true;
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -51,6 +54,7 @@ public class OrderService {
 	@Transactional
 	public boolean updateOrder(Order order) {
 		try {
+			order.setUpdatedAt(LocalDateTime.now());
             Order updatedOrder = orderRepository.save(order);
             return updatedOrder != null;
         } catch (Exception ex) {
@@ -76,6 +80,7 @@ public class OrderService {
 		Order existingOrder = orderRepository.findById(orderId).orElse(null);
 
 		if (existingOrder != null) {
+			existingOrder.setUpdatedAt(LocalDateTime.now());
 			existingOrder.setOrderStatus(newStatus);
 			return orderRepository.save(existingOrder);
 		}

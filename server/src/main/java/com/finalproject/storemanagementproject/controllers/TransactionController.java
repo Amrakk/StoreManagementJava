@@ -15,17 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.finalproject.storemanagementproject.dtos.OrderRequest;
 import com.finalproject.storemanagementproject.models.APIResponse;
-import com.finalproject.storemanagementproject.models.Branch;
-import com.finalproject.storemanagementproject.models.Customer;
 import com.finalproject.storemanagementproject.models.Order;
-import com.finalproject.storemanagementproject.models.OrderProduct;
 import com.finalproject.storemanagementproject.models.Payment;
 import com.finalproject.storemanagementproject.models.Product;
 import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
-import com.finalproject.storemanagementproject.services.BranchService;
 import com.finalproject.storemanagementproject.services.OrderService;
 import com.finalproject.storemanagementproject.services.PaymentService;
 import com.finalproject.storemanagementproject.services.ProductService;
@@ -38,9 +33,6 @@ public class TransactionController {
 	private OrderService orderService;
 	
 	@Autowired
-	private BranchService branchService;
-
-	@Autowired
 	private UserService userService;
 	
 	@Autowired
@@ -51,14 +43,8 @@ public class TransactionController {
 	
 	// Create order with Status PENDING
 	@PostMapping("/create")
-	public ResponseEntity<APIResponse<Order>> createOrder(@RequestBody OrderRequest orderRequest) {
-		String branchId = orderRequest.getBranchId();
-		String uid = orderRequest.getUid();
-		
-		Branch branch = branchService.getBranchById(branchId);
-		User user = userService.getUserById(uid);
-		
-		Order order = orderService.createOrder(branch, user);
+	public ResponseEntity<APIResponse<Order>> createOrder(@RequestBody User user) {
+		Order order = orderService.createOrder(user);
 		
 		return ResponseEntity.ok(new APIResponse<>(HttpStatus.CREATED.value(), "Order has been created successfully",
 				Collections.singletonList(order)));

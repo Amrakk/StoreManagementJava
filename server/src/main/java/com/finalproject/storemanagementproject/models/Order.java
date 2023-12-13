@@ -15,7 +15,6 @@ import lombok.Data;
 public class Order {
 	@Id
 	private String oid;
-	private Branch branch;
 	private Customer customer;
 	private User user;
 	private double totalPrice;
