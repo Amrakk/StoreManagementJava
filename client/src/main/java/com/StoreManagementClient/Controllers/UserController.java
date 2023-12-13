@@ -50,8 +50,8 @@ public class UserController {
     }
 
     @PostMapping("/admin/users/create")
-    public String createUser(@RequestParam("email") String email, @RequestParam("role") String role, RedirectAttributes redirectAttrs) {
-        Object response = userService.createUser(email, role);
+    public String createUser(@RequestParam("email") String email, RedirectAttributes redirectAttrs) {
+        Object response = userService.createUser(email);
 
         if (response instanceof String)
             redirectAttrs.addFlashAttribute("error", response);

@@ -54,13 +54,12 @@ public class UserService {
         }
     }
 
-    public Object createUser(String email, String role) {
+    public Object createUser(String email) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         Map<String, String> body = new HashMap<>();
         body.put("email", email);
-        body.put("role", role);
 
         HttpEntity<?> requestEntity = new HttpEntity<>(body, headers);
 

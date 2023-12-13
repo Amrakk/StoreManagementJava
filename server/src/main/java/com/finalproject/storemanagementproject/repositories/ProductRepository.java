@@ -1,15 +1,15 @@
 package com.finalproject.storemanagementproject.repositories;
 
-import java.util.List;
-import java.util.Optional;
-
+import com.finalproject.storemanagementproject.models.Product;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import com.finalproject.storemanagementproject.models.Product;
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends MongoRepository<Product, String> {
-	Optional<Product> findByBarCode(String barcode);
+    Optional<Product> findByBarcode(String barcode);
+
     List<Product> findByNameContainingIgnoreCase(String name);
 }

@@ -61,9 +61,8 @@ public class UserController {
     @PostMapping(value = "/admin/users/create", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Map<String, Object>> createUser(@RequestBody Map<String, String> body) {
         String email = body.get("email");
-        String role = body.get("role").toUpperCase();
 
-        if (email.isEmpty() || role.isEmpty())
+        if (email.isEmpty())
             return ResponseEntity.badRequest().body(Map.of("message", "Please fill all fields"));
 
         String domain = mailService.HOST.split("smtp.")[1];
@@ -73,16 +72,10 @@ public class UserController {
         if (userService.getUserByEmail(email) != null)
             return ResponseEntity.badRequest().body(Map.of("message", "Email already exists"));
 
-        if (!userService.isValidRole(role))
-            return ResponseEntity.badRequest().body(Map.of("message", "Invalid role"));
-
-        if (role.equals("OWNER"))
-            return ResponseEntity.badRequest().body(Map.of("message", "Can not create owner"));
-
         String username = email.split("@")[0];
         String password = passwordService.hashPassword(username);
 
-        User user = new User(null, email, username, password, Status.NORMAL, Role.valueOf(role), defaultAvatarUrl);
+        User user = new User(null, email, username, password, Status.NORMAL, Role.EMPLOYEE, defaultAvatarUrl);
 
         boolean isAdded = userService.addUser(user);
 
