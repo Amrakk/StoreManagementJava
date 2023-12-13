@@ -1,11 +1,10 @@
 package com.finalproject.storemanagementproject.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import com.finalproject.storemanagementproject.models.Customer;
 import com.finalproject.storemanagementproject.repositories.CustomerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CustomerService {

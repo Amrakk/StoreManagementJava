@@ -1,13 +1,12 @@
 package com.finalproject.storemanagementproject.services;
 
+import com.finalproject.storemanagementproject.models.Product;
+import com.finalproject.storemanagementproject.repositories.ProductRepository;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.finalproject.storemanagementproject.models.Product;
-import com.finalproject.storemanagementproject.repositories.ProductRepository;
+import java.util.List;
 
 @Service
 public class ProductService {
