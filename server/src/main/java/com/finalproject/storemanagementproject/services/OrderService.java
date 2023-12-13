@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.finalproject.storemanagementproject.models.Branch;
 import com.finalproject.storemanagementproject.models.Customer;
@@ -19,16 +20,11 @@ public class OrderService {
 	@Autowired
 	private OrderRepository orderRepository;
 
-	public Order createOrder(Branch branch, User user, Customer customer, List<OrderProduct> orderProducts) {
+	public Order createOrder(Branch branch, User user) {
 		Order createdOrder = new Order();
-
+		
 		createdOrder.setBranch(branch);
 		createdOrder.setUser(user);
-		createdOrder.setCustomer(customer);
-		createdOrder.setOrderProducts(orderProducts);
-
-		double totalPrice = calculateTotalPrice(orderProducts);
-		createdOrder.setTotalPrice(totalPrice);
 
 		createdOrder.setOrderStatus(Status.PENDING);
 		createdOrder.setCreatedAt(LocalDateTime.now());
@@ -52,15 +48,15 @@ public class OrderService {
 		}
 	}
 
+	@Transactional
 	public boolean updateOrder(Order order) {
-		Order updatedOrder = null;
 		try {
-			updatedOrder = orderRepository.save(order);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		return updatedOrder != null;
+            Order updatedOrder = orderRepository.save(order);
+            return updatedOrder != null;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
 	}
 
 	public Order getOrderById(String oid) {
@@ -87,4 +83,19 @@ public class OrderService {
 		return null;
 	}
 
+	public List<Order> getOrdersByStatus(Status status) {
+		if (status != null) {
+			return orderRepository.findByOrderStatus(status);
+		} else {
+			return orderRepository.findAll();
+		}
+	}
+
+	public List<Order> getOrdersByTimeAndStatus(LocalDateTime startDate, LocalDateTime endDate, Status status) {
+		if (status != null) {
+			return orderRepository.findByCreatedAtBetweenAndOrderStatus(startDate, endDate, status);
+		} else {
+			return orderRepository.findByCreatedAtBetween(startDate, endDate);
+		}
+	}
 }

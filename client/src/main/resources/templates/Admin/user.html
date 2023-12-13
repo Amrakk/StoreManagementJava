@@ -156,13 +156,12 @@
                                     </div>
                                     <div class="text-center profile-details d-flex justify-content-center flex-column align-items-center">
                                         <h3 id="name">Duy Nguyen</h3>
-                                        <div class="col-6" onclick="toggleCard()">
+                                        <div class="col-6">
                                             <input name="oldRole" type="hidden" id="old_role">
-                                            <select name="role" class="nice_Select2 nice_Select_line wide m-2"
-                                                    id="edit_user_role">
-                                                <option th:if="${user.getRole().toString() == 'OWNER'}" value="OWNER">
-                                                    OWNER
-                                                </option>
+                                            <select name="role" id="edit_user_role"
+                                                    th:class="${user.getRole().toString() != 'OWNER'} ? 'nice_Select2 nice_Select_line wide m-2 disabled' : 'nice_Select2 nice_Select_line wide m-2'"
+                                            >
+                                                <option value="OWNER">OWNER</option>
                                                 <option value="ADMIN">ADMIN</option>
                                                 <option value="EMPLOYEE">EMPLOYEE</option>
                                             </select>
@@ -215,16 +214,6 @@
                                         <div class="common_input mb_15">
                                             <input name="email" type="text" placeholder="Email Address">
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-12" onclick="toggleCard()">
-                                        <select name="role" class="nice_Select2 nice_Select_line wide"
-                                                id="create_user_role">
-                                            <option value="">Select Role</option>
-                                            <option value="ADMIN">Admin</option>
-                                            <option value="EMPLOYEE">Employee</option>
-                                        </select>
                                     </div>
                                 </div>
                             </div>

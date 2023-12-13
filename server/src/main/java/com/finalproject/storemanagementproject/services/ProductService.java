@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.finalproject.storemanagementproject.models.Product;
+import com.finalproject.storemanagementproject.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.finalproject.storemanagementproject.models.Product;
-import com.finalproject.storemanagementproject.repositories.ProductRepository;
 
 @Service
 public class ProductService {
@@ -36,6 +36,10 @@ public class ProductService {
 	}
 	
 	public List<Product> findProductByName(String name) {
-		return productRepository.findByNameContainingIgnoreCase(name);
+		return productRepository.searchByName(".*" + name + ".*").orElse(new ArrayList<>());
+	}
+	
+	public Product findByPid(String pid) {
+		return productRepository.findById(pid).orElse(null);
 	}
 }

@@ -110,11 +110,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private boolean isOwnerOperations(HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         if (requestURI.contains("admin")) {
-            if (requestURI.contains("create") || requestURI.contains("update")) {
+            if (requestURI.contains("update")) {
                 String role = request.getParameter("role");
                 String oldRole = request.getParameter("oldRole");
-                if (role != null && role.equals("OWNER")) return true;
-                if (oldRole != null && oldRole.equals("OWNER")) return true;
+                if (role != null && !role.equals(oldRole)) return true;
             }
         }
 
