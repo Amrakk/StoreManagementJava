@@ -1,28 +1,26 @@
 package com.finalproject.storemanagementproject.models;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import lombok.Data;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Document(collection = "orders")
 @Data
 public class Order {
-	@Id
-	private String oid;
-	private Branch branch;
-	private Customer customer;
-	private User user;
-	private double totalPrice;
-	private Status orderStatus;
-	private List<OrderProduct> orderProducts;
-	@CreatedDate
-	private LocalDateTime createdAt;
-	@LastModifiedDate
-	private LocalDateTime updatedAt;
+    @Id
+    private String oid;
+    private Customer customer;
+    private User user;
+    private double totalPrice;
+    private Status orderStatus;
+    private List<OrderProduct> orderProducts;
+    @CreatedDate
+    private LocalDateTime createdAt;
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }
