@@ -2,5 +2,8 @@ package com.StoreManagementClient.Models;
 
 public enum Status {
     LOCKED,
-    NORMAL
+    NORMAL,
+    PENDING,
+    COMPLETED,
+    FAILED
 }

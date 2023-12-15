@@ -94,4 +94,8 @@ public class OrderService {
             return orderRepository.findByCreatedAtBetween(startDate, endDate);
         }
     }
+
+    public List<Order> findByCustomerId(String customerId) {
+        return orderRepository.findByCustomerCustId(customerId);
+    }
 }
