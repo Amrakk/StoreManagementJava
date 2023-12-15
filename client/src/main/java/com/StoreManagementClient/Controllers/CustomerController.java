@@ -2,9 +2,11 @@ package com.StoreManagementClient.Controllers;
 
 import com.StoreManagementClient.Models.Customer;
 import com.StoreManagementClient.Models.Order;
+import com.StoreManagementClient.Models.Product;
 import com.StoreManagementClient.Models.User;
 import com.StoreManagementClient.Services.CustomerService;
 import com.StoreManagementClient.Services.OrderService;
+import com.StoreManagementClient.Services.ProductService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,10 +21,12 @@ import java.util.List;
 public class CustomerController {
     private final CustomerService customerService;
     private final OrderService orderService;
+    private final ProductService productService;
 
     @Autowired
-    public CustomerController(CustomerService customerService, OrderService orderService) {
+    public CustomerController(CustomerService customerService, OrderService orderService, ProductService productService) {
         this.orderService = orderService;
+        this.productService = productService;
         this.customerService = customerService;
     }
 
@@ -46,6 +50,9 @@ public class CustomerController {
 
         List<Order> orders = orderService.getOrderByCustomerId(id);
         model.addAttribute("orders", orders);
+
+        List<Product> products = productService.getProducts(null);
+        model.addAttribute("products", products);
 
         return "Customers/customer-detail";
     }

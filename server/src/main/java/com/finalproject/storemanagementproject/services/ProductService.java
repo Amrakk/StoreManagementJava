@@ -14,10 +14,8 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    public List<Product> getAllProduct() {
-        List<Product> list = new ArrayList<>();
-        productRepository.findAll().forEach(list::add);
-        return list;
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
     }
 
     public Product saveProduct(Product product) {

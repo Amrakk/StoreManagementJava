@@ -78,7 +78,7 @@ public class Converter<T> {
         if (orderMap == null) return null;
 
         Order order = new Order();
-        order.setOid((String) orderMap.get("orderId"));
+        order.setOid((String) orderMap.get("oid"));
         order.setCustomer(convertToCustomer((Map<String, Object>) orderMap.get("customer")));
         order.setUser(convertToUser((Map<String, Object>) orderMap.get("user")));
         order.setTotalPrice((Double) orderMap.get("totalPrice"));
@@ -122,6 +122,42 @@ public class Converter<T> {
         orderProduct.setImportPrice((Double) orderProductMap.get("importPrice"));
 
         return orderProduct;
+    }
+
+    public static List<Product> convertToProducts(List<Map<String, Object>> productsMap) {
+        if (productsMap == null) return null;
+
+        List<Product> products = new ArrayList<>();
+        for (Map<String, Object> productMap : productsMap) {
+            Product product = convertToProduct(productMap);
+            if (product != null) products.add(product);
+        }
+
+        return products;
+    }
+
+    public static Product convertToProduct(Map<String, Object> productMap) {
+        if (productMap == null) return null;
+
+        Product product = new Product();
+        product.setPid((String) productMap.get("pid"));
+        product.setName((String) productMap.get("name"));
+        product.setCategory(Category.valueOf((String) productMap.get("category")));
+        product.setImportPrice((Double) productMap.get("importPrice"));
+        product.setRetailPrice((Double) productMap.get("retailPrice"));
+        product.setBarcode((String) productMap.get("barcode"));
+        product.setIllustrator((String) productMap.get("illustrator"));
+        product.setQuantity((Integer) productMap.get("quantity"));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+        String createdAtString = (String) productMap.get("createdAt");
+        product.setCreatedAt(createdAtString != null ? LocalDateTime.parse(createdAtString, formatter) : null);
+
+        String updatedAtString = (String) productMap.get("updatedAt");
+        product.setUpdatedAt(updatedAtString != null ? LocalDateTime.parse(updatedAtString, formatter) : null);
+
+        return product;
     }
 
 }
