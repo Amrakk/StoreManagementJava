@@ -25,6 +25,10 @@ public class CustomerService {
         return customerRepository.findByPhone(phone);
     }
 
+    public List<Customer> findByName(String name) {
+        return customerRepository.findByNameContainingIgnoreCase(name);
+    }
+
     @Transactional
     public boolean createCustomer(Customer customer) {
         try {

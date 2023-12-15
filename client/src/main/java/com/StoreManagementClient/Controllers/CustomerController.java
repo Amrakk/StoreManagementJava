@@ -31,11 +31,11 @@ public class CustomerController {
     }
 
     @GetMapping("")
-    public String getAllCustomers(@RequestParam(required = false) String phone, Model model, HttpServletRequest request) {
+    public String getAllCustomers(@RequestParam(required = false) String phone, @RequestParam(required = false) String name, Model model, HttpServletRequest request) {
         User user = (User) request.getAttribute("authenticatedUser");
         model.addAttribute("user", user);
 
-        List<Customer> customers = customerService.getUsers(phone);
+        List<Customer> customers = customerService.getUsers(phone, name);
         model.addAttribute("customers", customers);
         return "Customers/customer";
     }

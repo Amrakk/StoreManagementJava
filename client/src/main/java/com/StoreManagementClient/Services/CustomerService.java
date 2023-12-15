@@ -25,9 +25,13 @@ public class CustomerService {
         this.restTemplate = restTemplate;
     }
 
-    public List<Customer> getUsers(String phone) {
-        String url = baseUrl;
-        if (phone != null && !phone.isEmpty()) url += "?phone=" + phone;
+    public List<Customer> getUsers(String phone, String name) {
+        String url = baseUrl + "?phone={phone}&name={name}";
+        if (phone != null && !phone.isEmpty()) url = url.replace("{phone}", phone);
+        else url = url.replace("{phone}", "");
+
+        if (name != null && !name.isEmpty()) url = url.replace("{name}", name);
+        else url = url.replace("{name}", "");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

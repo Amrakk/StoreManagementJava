@@ -31,11 +31,15 @@ public class CustomerController {
     }
 
     @GetMapping("")
-    public ResponseEntity<APIResponse<Customer>> getCustomerByPhone(@RequestParam(required = false) String phone) {
+    public ResponseEntity<APIResponse<Customer>> getCustomerByPhone(@RequestParam(required = false) String phone, @RequestParam(required = false) String name) {
         List<Customer> customers;
 
-        if (phone == null || phone.isEmpty()) customers = customerService.getAllCustomers();
-        else customers = customerService.findByPhone(phone);
+        if (name != null && !name.isEmpty())
+            customers = customerService.findByName(name);
+        else customers = customerService.getAllCustomers();
+
+        if (phone != null && !phone.isEmpty())
+            customers.removeIf(customer -> !customer.getPhone().equals(phone));
 
         if (customers == null) {
             return ResponseEntity.ok(

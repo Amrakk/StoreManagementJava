@@ -114,7 +114,7 @@
                                     </td>
                                     <td th:text="${order.getOrderStatus()}"></td>
                                     <td>
-                                        <a href="#" class="__cf_email__" th:text="${order.getTotalPrice()}"></a>
+                                        <a href="#" class="__cf_email__" th:text="${'$'+order.getTotalPrice()}"></a>
                                     </td>
                                     <td>
                                         <a href="#" class="question_content"
@@ -125,10 +125,12 @@
                                         <a href="#" th:text="${order.getCreatedAt().toLocalDate()}"></a>
                                     </td>
                                     <td>
-                                        <div class="action_btns d-flex">
-                                            <a class="action_btn mr_10" href="#" th:data-order-id="${order.getOid()}"
+                                        <div class="action_btns">
+                                            <a class="action_btn mr_10 d-flex align-items-center justify-content-center"
+                                               href="#"
+                                               th:data-order-id="${order.getOid()}"
                                                onclick="showOrderDetailsModal(this)">
-                                                <i class="far fa-edit"></i>
+                                                <i class="fa fa-th-list"></i>
                                             </a>
                                         </div>
                                     </td>
@@ -202,6 +204,7 @@
                                         <div class="col-lg-4 col-sm-5">
                                         </div>
                                         <div class="col-lg-4 col-sm-5 ms-auto QA_section">
+                                            <br>
                                             <table class="table table-clear QA_table">
                                                 <tbody>
 
