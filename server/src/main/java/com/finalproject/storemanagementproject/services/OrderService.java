@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class OrderService {
         createdOrder.setUser(user);
 
         createdOrder.setOrderStatus(Status.PENDING);
-        createdOrder.setCreatedAt(LocalDateTime.now());
+        createdOrder.setCreatedAt(Instant.now());
 
         try {
             orderRepository.insert(createdOrder);

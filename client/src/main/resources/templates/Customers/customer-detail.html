@@ -162,7 +162,10 @@
                     </button>
                 </div>
 
-                <div class="modal-body" id="invoice">
+                <div class="modal-body" id="invoice"
+                     style="@media screen { -webkit-print-color-adjust: exact; };
+                            @page  {size: a4;margin: 0;};
+                            @media print { page-break-inside: avoid; }">
                     <div class="row">
                         <div class="col-12 QA_section">
                             <div class="card QA_table ">
@@ -308,7 +311,9 @@
     }
 
     function printInvoice() {
-        // TODO: print invoice
+        document.body.innerHTML = document.getElementById("invoice").innerHTML;
+        window.print();
+        location.reload();
     }
 
     function submitUpdateForm() {
