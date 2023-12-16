@@ -57,12 +57,12 @@ public class Converter<T> {
         customer.setName((String) customerMap.get("name"));
         customer.setPhone((String) customerMap.get("phone"));
         customer.setEmail((String) customerMap.get("email"));
-        customer.setPoint((Double) customerMap.get("point"));
+        customer.setPoint(((Number) customerMap.get("point")).doubleValue());
 
         return customer;
     }
 
-    public static List<Order> convertToOrders(List<Map<String, Object>> data) { // data = ordersMap
+    public static List<Order> convertToOrders(List<Map<String, Object>> data) {
         if (data == null) return null;
 
         List<Order> orders = new ArrayList<>();
@@ -81,10 +81,10 @@ public class Converter<T> {
         order.setOid((String) orderMap.get("oid"));
         order.setCustomer(convertToCustomer((Map<String, Object>) orderMap.get("customer")));
         order.setUser(convertToUser((Map<String, Object>) orderMap.get("user")));
-        order.setTotalPrice((Double) orderMap.get("totalPrice"));
+        order.setTotalPrice(((Number) orderMap.get("totalPrice")).doubleValue());
         order.setOrderStatus(Status.valueOf((String) orderMap.get("orderStatus")));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
 
         String createdAtString = (String) orderMap.get("createdAt");
         order.setCreatedAt(createdAtString != null ? LocalDateTime.parse(createdAtString, formatter) : null);
@@ -118,8 +118,8 @@ public class Converter<T> {
         orderProduct.setPid((String) orderProductMap.get("pid"));
         orderProduct.setOid((String) orderProductMap.get("oid"));
         orderProduct.setQuantity((Integer) orderProductMap.get("quantity"));
-        orderProduct.setRetailPrice((Double) orderProductMap.get("retailPrice"));
-        orderProduct.setImportPrice((Double) orderProductMap.get("importPrice"));
+        orderProduct.setRetailPrice(((Number) orderProductMap.get("retailPrice")).doubleValue());
+        orderProduct.setImportPrice(((Number) orderProductMap.get("importPrice")).doubleValue());
 
         return orderProduct;
     }
@@ -143,13 +143,13 @@ public class Converter<T> {
         product.setPid((String) productMap.get("pid"));
         product.setName((String) productMap.get("name"));
         product.setCategory(Category.valueOf((String) productMap.get("category")));
-        product.setImportPrice((Double) productMap.get("importPrice"));
-        product.setRetailPrice((Double) productMap.get("retailPrice"));
+        product.setImportPrice(((Number) productMap.get("importPrice")).doubleValue());
+        product.setRetailPrice(((Number) productMap.get("retailPrice")).doubleValue());
         product.setBarcode((String) productMap.get("barcode"));
         product.setIllustrator((String) productMap.get("illustrator"));
         product.setQuantity((Integer) productMap.get("quantity"));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
 
         String createdAtString = (String) productMap.get("createdAt");
         product.setCreatedAt(createdAtString != null ? LocalDateTime.parse(createdAtString, formatter) : null);
