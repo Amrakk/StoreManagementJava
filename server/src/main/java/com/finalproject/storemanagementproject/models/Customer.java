@@ -7,8 +7,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 @Document(collection = "customers")
 @Data
 @Getter
@@ -21,6 +19,4 @@ public class Customer {
     private String phone;
     private String email;
     private Double point;
-
-    private List<Order> orders;
 }

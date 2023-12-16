@@ -31,11 +31,15 @@ public class CustomerController {
     }
 
     @GetMapping("")
-    public ResponseEntity<APIResponse<Customer>> getCustomerByPhone(@RequestParam(required = false) String phone) {
+    public ResponseEntity<APIResponse<Customer>> getCustomerByPhone(@RequestParam(required = false) String phone, @RequestParam(required = false) String name) {
         List<Customer> customers;
 
-        if (phone == null || phone.isEmpty()) customers = customerService.getAllCustomers();
-        else customers = customerService.findByPhone(phone);
+        if (name != null && !name.isEmpty())
+            customers = customerService.findByName(name);
+        else customers = customerService.getAllCustomers();
+
+        if (phone != null && !phone.isEmpty())
+            customers.removeIf(customer -> !customer.getPhone().equals(phone));
 
         if (customers == null) {
             return ResponseEntity.ok(
@@ -69,15 +73,36 @@ public class CustomerController {
                     new APIResponse<>(HttpStatus.NOT_FOUND.value(), "Not Found", Collections.emptyList()));
         }
 
+        if (customer.getName() == null || customer.getName().isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Name is required", Collections.emptyList()));
+
+        if (customer.getPhone() == null || customer.getPhone().isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Phone is required", Collections.emptyList()));
+
+        if (customer.getEmail() == null || customer.getEmail().isEmpty())
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Email is required", Collections.emptyList()));
+
+        if (customer.getPoint() == null || customer.getPoint().isNaN() || customer.getPoint() < 0)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Invalid point", Collections.emptyList()));
+
+        if (!customer.getEmail().matches("^\\w+@\\w+\\.\\w+$"))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Invalid email", Collections.emptyList()));
+
         customerData.setName(customer.getName());
         customerData.setPhone(customer.getPhone());
         customerData.setEmail(customer.getEmail());
+        customerData.setPoint(customer.getPoint());
 
         boolean isUpdated = customerService.createCustomer(customerData);
 
         if (!isUpdated) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Failed to update", Collections.singletonList(customerData)));
+                    new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Failed to update", Collections.emptyList()));
         }
 
         return ResponseEntity
