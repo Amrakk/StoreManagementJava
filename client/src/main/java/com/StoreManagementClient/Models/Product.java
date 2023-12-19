@@ -1,14 +1,15 @@
 package com.StoreManagementClient.Models;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class Product {
     private String pid;
     private String name;

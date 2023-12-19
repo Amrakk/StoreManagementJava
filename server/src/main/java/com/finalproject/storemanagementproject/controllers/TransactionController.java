@@ -66,17 +66,17 @@ public class TransactionController {
 
     @GetMapping("/search-barcode")
     public ResponseEntity<APIResponse<Product>> searchProductByBarcode(@RequestParam String barcode) {
-        List<Product> products = productService.findByBarCode(barcode);
+        Product products = productService.findByBarCode(barcode);
 
         Integer HTTP_CODE = HttpStatus.OK.value();
         String message = "Success";
 
-        if (products == null || products.isEmpty()) {
+        if (products == null) {
             HTTP_CODE = HttpStatus.NOT_FOUND.value();
             message = "Not found product";
         }
 
-        return ResponseEntity.ok(new APIResponse<>(HTTP_CODE, message, products));
+        return ResponseEntity.ok(new APIResponse<>(HTTP_CODE, message, Collections.singletonList(products)));
     }
     // End Product Section
 

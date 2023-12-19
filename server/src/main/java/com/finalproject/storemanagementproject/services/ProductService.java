@@ -5,9 +5,7 @@ import com.finalproject.storemanagementproject.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -26,16 +24,16 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    public Optional<Product> getProductById(String id) {
-        return productRepository.findById(id);
+    public Product getProductById(String id) {
+        return productRepository.findById(id).orElse(null);
     }
 
-    public List<Product> findByBarCode(String barcode) {
-        return productRepository.findByBarcode(barcode).orElse(null);
+    public Product findByBarCode(String barcode) {
+        return productRepository.findByBarcode(barcode);
     }
 
     public List<Product> findProductByName(String name) {
-        return productRepository.searchByName(".*" + name + ".*").orElse(new ArrayList<>());
+        return productRepository.findByNameContainingIgnoreCase(name);
     }
 
     public Product findByPid(String pid) {
