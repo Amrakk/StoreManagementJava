@@ -66,4 +66,8 @@ public class OrderProductService {
             return false;
         }
     }
+
+    public List<OrderProduct> getOrderProductsByPid(String pid) {
+        return orderProductRepository.findAllByPid(pid);
+    }
 }
