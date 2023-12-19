@@ -28,7 +28,7 @@ public class ProductService {
         return productRepository.findById(id).orElse(null);
     }
 
-    public Product findByBarCode(String barcode) {
+    public List<Product> findByBarCode(String barcode) {
         return productRepository.findByBarcode(barcode);
     }
 
