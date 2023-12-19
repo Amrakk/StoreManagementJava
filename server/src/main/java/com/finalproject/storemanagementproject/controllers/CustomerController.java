@@ -1,14 +1,22 @@
 package com.finalproject.storemanagementproject.controllers;
 
-import com.finalproject.storemanagementproject.models.APIResponse;
-import com.finalproject.storemanagementproject.models.Customer;
-import com.finalproject.storemanagementproject.services.CustomerService;
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.finalproject.storemanagementproject.models.APIResponse;
+import com.finalproject.storemanagementproject.models.Customer;
+import com.finalproject.storemanagementproject.services.CustomerService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -53,6 +61,13 @@ public class CustomerController {
     @PostMapping("/create")
     public ResponseEntity<APIResponse<Customer>> createCustomer(@RequestBody Customer customer) {
         customer.setPoint(Double.valueOf(0));
+        
+        // 1 account 1 phone number
+        List<Customer> customersByPhone = customerService.findByPhone(customer.getPhone());
+        if (customersByPhone.size() != 0) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "There is an customer with this phone", null));
+        }
+        
         boolean isCreated = customerService.createCustomer(customer);
 
         if (!isCreated) {

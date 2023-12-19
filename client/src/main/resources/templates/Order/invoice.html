@@ -711,7 +711,7 @@
                                         </li>
                                     </ol>
                                 </div>
-                                <a href="#" class="white_btn3">Print</a>
+                                <button class="white_btn3 btn-cancel-order">Cancel</button>
                             </div>
                         </div>
                     </div>
@@ -788,7 +788,6 @@
                                         <table class="table table-striped">
                                             <thead>
                                                 <tr>
-                                                    <th class="center">#</th>
                                                     <th>Item</th>
                                                     <th class="right">
                                                         Unit Cost
@@ -832,7 +831,7 @@
 
                                     <button
                                         type="button"
-                                        class="btn btn-primary w-100 m-2"
+                                        class="btn btn-primary w-100 m-2 modal-confirm-payment"
                                         data-bs-toggle="modal"
                                         data-bs-target="#modal-customer"
                                     >
@@ -1040,7 +1039,8 @@
                             type="button"
                             class="btn btn-secondary"
                             data-bs-target="#customer-information-form"
-                            data-bs-toggle="modal" data-bs-dismiss="modal"
+                            data-bs-toggle="modal"
+                            data-bs-dismiss="modal"
                         >
                             Create a new account
                         </button>
@@ -1066,10 +1066,14 @@
             aria-labelledby="customer-information-form"
             tabindex="-1"
         >
+            <div id="alert-container"></div>
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="customer-information-form-label">
+                        <h5
+                            class="modal-title"
+                            id="customer-information-form-label"
+                        >
                             Create a new account
                         </h5>
                         <button
@@ -1095,9 +1099,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label
-                                    for="phone"
-                                    class="col-form-label"
+                                <label for="phone" class="col-form-label"
                                     >Phone:</label
                                 >
                                 <input
@@ -1114,12 +1116,12 @@
                                     >Email:</label
                                 >
                                 <input
-                                    type="text"
+                                    type="email"
                                     class="form-control"
                                     id="customer-email"
-                                />
+                                    required 
+                                />                                
                             </div>
-
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -1128,6 +1130,7 @@
                             data-bs-target="#modal-customer"
                             data-bs-toggle="modal"
                             data-bs-dismiss="modal"
+                            id="open-modal-customer-button"
                         >
                             Back to first
                         </button>
@@ -1147,6 +1150,51 @@
         >
         <!--  -->
 
+        <!-- Delete confirm modal -->
+        <div
+            class="modal fade"
+            id="remove-modal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="remove-modal"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="remove-modal-label">
+                            Delete Confirmation
+                        </h5>
+                        <button
+                            type="button"
+                            class="close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        Do you really want to delete the product?
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Close
+                        </button>
+                        <button
+                            type="button"
+                            class="btn btn-danger btn-confirm-delete"
+                        >
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- <script
             data-cfasync="false"
             src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"
