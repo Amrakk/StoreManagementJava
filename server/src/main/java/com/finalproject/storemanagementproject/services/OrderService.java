@@ -10,6 +10,7 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,8 +25,8 @@ public class OrderService {
         createdOrder.setUser(user);
 
         createdOrder.setOrderStatus(Status.PENDING);
-        createdOrder.setCreatedAt(LocalDateTime.now());
-        
+        createdOrder.setCreatedAt(Instant.now());
+
         try {
             return orderRepository.save(createdOrder);
         } catch (Exception e) {
@@ -64,7 +65,7 @@ public class OrderService {
 	        // Update the existing order properties with the new values
 	        existingOrder.setCustomer(order.getCustomer());
 	        existingOrder.setOrderProducts(order.getOrderProducts());
-	        existingOrder.setUpdatedAt(LocalDateTime.now());
+	        existingOrder.setUpdatedAt(Instant.now());
 	        existingOrder.setTotalPrice(calculateTotalPrice(existingOrder.getOrderProducts()));
 
 	        // Save the updated order to the repository
@@ -96,7 +97,7 @@ public class OrderService {
 		Order existingOrder = orderRepository.findById(orderId).orElse(null);
 
 		if (existingOrder != null) {
-			existingOrder.setUpdatedAt(LocalDateTime.now());
+			existingOrder.setUpdatedAt(Instant.now());
 			existingOrder.setOrderStatus(newStatus);
 			return orderRepository.save(existingOrder);
 		}
@@ -111,12 +112,16 @@ public class OrderService {
 			return orderRepository.findAll();
 		}
 	}
+	
+    public List<Order> getOrdersByTimeAndStatus(LocalDateTime startDate, LocalDateTime endDate, Status status) {
+        if (status != null) {
+            return orderRepository.findByCreatedAtBetweenAndOrderStatus(startDate, endDate, status);
+        } else {
+            return orderRepository.findByCreatedAtBetween(startDate, endDate);
+        }
+    }
 
-	public List<Order> getOrdersByTimeAndStatus(LocalDateTime startDate, LocalDateTime endDate, Status status) {
-		if (status != null) {
-			return orderRepository.findByCreatedAtBetweenAndOrderStatus(startDate, endDate, status);
-		} else {
-			return orderRepository.findByCreatedAtBetween(startDate, endDate);
-		}
-	}
+    public List<Order> findByCustomerId(String customerId) {
+        return orderRepository.findByCustomerCustId(customerId);
+    }
 }

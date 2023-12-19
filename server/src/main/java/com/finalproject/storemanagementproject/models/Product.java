@@ -1,14 +1,15 @@
 package com.finalproject.storemanagementproject.models;
 
-import java.time.LocalDateTime;
-
-import lombok.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
 
 @Document(collection = "products")
 @Data
@@ -26,7 +27,7 @@ public class Product {
     private String illustrator;
     private int quantity;
     @CreatedDate
-    private LocalDateTime createdAt;
+    private Instant createdAt;
     @LastModifiedDate
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 }

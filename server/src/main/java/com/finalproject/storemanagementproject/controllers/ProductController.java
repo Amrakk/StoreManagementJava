@@ -1,7 +1,6 @@
 package com.finalproject.storemanagementproject.controllers;
 
 import com.finalproject.storemanagementproject.models.APIResponse;
-import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.Product;
 import com.finalproject.storemanagementproject.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +19,17 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProduct();
+    @GetMapping("")
+    public ResponseEntity<APIResponse<Product>> getAllProducts() {
+        List<Product> products = productService.getAllProducts();
+
+        if (products == null) {
+            return ResponseEntity.ok(
+                    new APIResponse<>(HttpStatus.NOT_FOUND.value(), "Not Found", Collections.emptyList()));
+        }
+
+        return ResponseEntity
+                .ok(new APIResponse<>(HttpStatus.OK.value(), "Success", products));
     }
 
     @GetMapping("/{id}")
