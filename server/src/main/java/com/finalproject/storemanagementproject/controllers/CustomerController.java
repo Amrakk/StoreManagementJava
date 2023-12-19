@@ -57,6 +57,13 @@ public class CustomerController {
     @PostMapping("/create")
     public ResponseEntity<APIResponse<Customer>> createCustomer(@RequestBody Customer customer) {
         customer.setPoint(Double.valueOf(0));
+        
+        // 1 account 1 phone number
+        List<Customer> customersByPhone = customerService.findByPhone(customer.getPhone());
+        if (customersByPhone.size() != 0) {
+        	return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "There is an customer with this phone", null));
+        }
+        
         boolean isCreated = customerService.createCustomer(customer);
 
         if (!isCreated) {

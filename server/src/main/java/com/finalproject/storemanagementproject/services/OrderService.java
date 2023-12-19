@@ -6,6 +6,7 @@ import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
 import com.finalproject.storemanagementproject.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,14 +25,13 @@ public class OrderService {
 
         createdOrder.setOrderStatus(Status.PENDING);
         createdOrder.setCreatedAt(LocalDateTime.now());
-
+        
         try {
-            orderRepository.insert(createdOrder);
+            return orderRepository.save(createdOrder);
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
         }
-
-        return createdOrder;
     }
 	
 	public boolean removeOrder(Order order) {
@@ -52,14 +52,31 @@ public class OrderService {
 
 	@Transactional
 	public boolean updateOrder(Order order) {
-		try {
-			order.setUpdatedAt(LocalDateTime.now());
-			Order updatedOrder = orderRepository.save(order);
-			return updatedOrder != null;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return false;
-		}
+	    try {
+	        // Retrieve the existing order from the repository based on the order ID
+	        Order existingOrder = orderRepository.findById(order.getOid())
+	                .orElseThrow(() -> new NotFoundException());
+
+	        System.out.println(order.getCustomer().getCustId());
+	        System.out.println(order.getOrderProducts().get(0));
+	        System.out.println(calculateTotalPrice(order.getOrderProducts()));
+	        
+	        // Update the existing order properties with the new values
+	        existingOrder.setCustomer(order.getCustomer());
+	        existingOrder.setOrderProducts(order.getOrderProducts());
+	        existingOrder.setUpdatedAt(LocalDateTime.now());
+	        existingOrder.setTotalPrice(calculateTotalPrice(existingOrder.getOrderProducts()));
+
+	        // Save the updated order to the repository
+	        Order updatedOrder = orderRepository.save(existingOrder);
+
+	        // Return true if the update was successful (updatedOrder is not null)
+	        return updatedOrder != null;
+	    } catch (NotFoundException ex) {
+	        // Log the exception or handle it appropriately
+	        ex.printStackTrace();
+	        return false;
+	    }
 	}
 
 	public Order getOrderById(String oid) {
@@ -71,7 +88,7 @@ public class OrderService {
 	}
 
 	private double calculateTotalPrice(List<OrderProduct> orderProducts) {
-		return orderProducts.stream().mapToDouble(OrderProduct::getRetailPrice)
+		return orderProducts == null ? 0 : orderProducts.stream().mapToDouble(OrderProduct::getRetailPrice)
 				.filter(price -> !Double.isNaN(price) && !Double.isInfinite(price)).sum();
 	}
 

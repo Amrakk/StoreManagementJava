@@ -4,6 +4,7 @@ import com.finalproject.storemanagementproject.models.OrderProduct;
 import com.finalproject.storemanagementproject.repositories.OrderProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,8 +23,47 @@ public class OrderProductService {
 
         return addedProduct != null;
     }
+    
+    @Transactional
+    public OrderProduct createOrderProducts(OrderProduct orderProduct) {
+        try {
+        	return orderProductRepository.save(orderProduct);
+        } catch (Exception e) {
+        	e.printStackTrace();
+        	return null;
+        }
+   }
 
-    public List<OrderProduct> getAllOrderProduct(String oid) {
+	public List<OrderProduct> getAllOrderProductsByOid(String oid) {
         return orderProductRepository.findAllByOid(oid);
+	}
+
+	public OrderProduct findByOidAndPid(String oid, String pid) {
+        return orderProductRepository.findByOidAndPid(oid, pid);
+	}
+
+	public OrderProduct updateOrderProduct(OrderProduct existingOrderProduct) {
+		try {
+	        return orderProductRepository.save(existingOrderProduct);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	public boolean deleteOrderProduct(String oid, String pid) {
+        OrderProduct orderProduct = orderProductRepository.findByOidAndPid(oid, pid);
+
+        if (orderProduct != null) {
+        	try {
+                orderProductRepository.delete(orderProduct);
+                return true;
+        	} catch (Exception e) {
+        		e.printStackTrace();
+        		return false;
+        	}
+        } else {
+            return false;
+        }
     }
 }

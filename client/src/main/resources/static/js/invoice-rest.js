@@ -12,6 +12,48 @@ const user = {
 
 let oid = sessionStorage.getItem("currentOID");
 
+function displaySuccessAlert(message) {
+    let alertContainer = $("#alert-container");
+
+    let alertHTML = `
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        `;
+
+    let $alert = $(alertHTML);
+    alertContainer.append($alert);
+
+    $alert.on("closed.bs.alert", () => {
+        $("#open-modal-customer-button").click();
+    });
+
+    setTimeout(() => {
+        $alert.alert("close");
+    }, 1000);
+}
+
+function displayDangerAlert(message) {
+    let alertContainer = $("#alert-container");
+    let alertHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    `;
+
+    alertContainer.append(alertHTML);
+    $(".alert").alert();
+    setTimeout(() => {
+        $(".alert").alert("close");
+    }, 2000);
+}
+
 // Search data
 const debounce = (func, delay) => {
     let timeoutId;
@@ -39,6 +81,10 @@ async function createOrder() {
         console.log("Order created successfully:", response.data);
         oid = response.data.data[0].oid;
         sessionStorage.setItem("currentOID", oid);
+        sessionStorage.setItem(
+            "currentOrder",
+            JSON.stringify(response.data.data[0])
+        );
 
         $(".card.QA_table").attr("data-id", oid);
     } catch (error) {
@@ -47,11 +93,11 @@ async function createOrder() {
     }
 }
 
-const handleSearchAndUpdateList = async text => {
+const handleSearchAndUpdateList = async (text) => {
     try {
         // API can be changed later...
         let response = await axios.get(
-            `http://localhost:8080/api/transactions/search-name?productName=${text}`
+            `${baseURL}/transactions/search-name?productName=${text}`
         );
 
         let products = response.data.data;
@@ -59,12 +105,34 @@ const handleSearchAndUpdateList = async text => {
         if (products == null || products.length === 0) {
             // API can be changed later...
             response = await axios.get(
-                `http://localhost:8080/api/transactions/search-barcode?barcode=${text}`
+                `${baseURL}/transactions/search-barcode?barcode=${text}`
             );
             products = response.data.data;
         }
 
         displaySearchResults(products);
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+const changeOrderStatusFailed = async () => {
+    try {
+        let response = await axios.post(
+            `${baseURL}/transactions/orders/${oid}/update-status`,
+            null,
+            {
+                params: {
+                    status: "FAILED",
+                },
+                headers: { "Content-Type": "application/json" },
+            }
+        );
+
+        const updatedOrder = response.data.data[0];
+
+        console.log("Order status changed successfully:", updatedOrder);
+        window.location.href = "/Home";
     } catch (e) {
         console.log(e);
     }
@@ -96,17 +164,15 @@ const displaySearchResults = (results) => {
 async function fetchProductByIdAndAddToLocalStorage(id) {
     try {
         // API can be changed later...
-        let response = await axios.get(
-            `${baseURL}/transactions/product/${id}`
-        );
+        let response = await axios.get(`${baseURL}/transactions/product/${id}`);
 
-        let product = response.data.data;
+        let product = response.data.data[0];
 
         let orderedProduct = {
             pid: id,
             oid,
             quantity: 1,
-            importedPrice: product.importedPrice,
+            importPrice: product.importPrice,
             retailPrice: product.retailPrice,
         };
 
@@ -124,7 +190,7 @@ async function fetchProductByIdAndAddToLocalStorage(id) {
             }
         } else {
             const existingProduct = productsInLocalStorage.find(
-                (item) => item.pid === id
+                item => item.pid === id
             );
 
             if (existingProduct.quantity + 1 <= product.quantity) {
@@ -218,17 +284,28 @@ async function adjustQuantity(product, orderId, adjustment) {
     const existingProduct = productsInLocalStorage.find(
         (item) => item.pid === product.pid && item.oid === orderId
     );
+
+    const oldQuantity = existingProduct.quantity;
     existingProduct.quantity = Math.max(
         0,
         existingProduct.quantity + adjustment
     );
 
+    if (existingProduct.quantity > product.quantity) {
+        existingProduct.quantity = oldQuantity;
+
+        alert("Exceed the limit quantity!");
+        return;
+    }
+
     if (existingProduct.quantity === 0) {
         const deleteConfirm = await confirmDelete();
         if (deleteConfirm) {
             productsInLocalStorage = productsInLocalStorage.filter(
-                (item) => item.quantity !== 0
+                item => item.quantity !== 0
             );
+
+            // await deleteOrderProduct(existingProduct.oid, existingProduct.pid);
         }
     }
 
@@ -242,6 +319,20 @@ async function adjustQuantity(product, orderId, adjustment) {
     );
     updateTableFromLocalStorage(orderId);
 }
+
+// async function deleteOrderProduct(oid, pid) {
+//     try {
+//         const response = await axios.delete(`${baseURL}/transactions/order-products?oid=${oid}&pid=${pid}`);
+
+//         if (response.status === 200) {
+//             console.log("OrderProduct deleted successfully");
+//         } else {
+//             console.error("Failed to delete OrderProduct");
+//         }
+//     } catch (error) {
+//         console.error("Error deleting OrderProduct", error);
+//     }
+// }
 
 function confirmDelete() {
     return new Promise((resolve) => {
@@ -265,18 +356,91 @@ async function getCustomerByPhone(phone) {
     }
 }
 
-async function updateOrderProduct() {
-    console.log(wholeTotal);
-    let order = {
-        oid,
-        customer,
-        totalPrice: wholeTotal,
-        orderProducts: localStorage.getItem(`products-${oid}`),
-    };
+const createCustomer = async (name, phone, email) => {
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phonePattern = /^\d{10}$/;
+
+    if (
+        !name ||
+        !phone ||
+        !email ||
+        !emailPattern.test(email) ||
+        !phonePattern.test(phone)
+    ) {
+        displayDangerAlert("Please enter valid information");
+        return null;
+    }
 
     try {
+        let customer = {
+            name,
+            phone,
+            email,
+        };
+
         let response = await axios.post(
-            `${baseURL}/transactions/order/${oid}`,
+            `${baseURL}/customer/create`,
+            customer,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        return response.data.data[0];
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+};
+
+const getAllOrderProducts = async (oid) => {
+    try {
+        let response = await axios.get(
+            `${baseURL}/transactions/order-products/${oid}`
+        );
+
+        if (
+            response.status === 200 &&
+            response?.data.data &&
+            response.data.data.length > 0
+        ) {
+            return response.data.data;
+        } else {
+            console.log("There is nothing");
+            return null;
+        }
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+};
+
+async function saveAllOrderProduct(orderProducts) {
+    try {
+        const response = await axios.post(
+            `${baseURL}/transactions/order-products/create`,
+            orderProducts
+        );
+
+        if (response.status === 200) {
+            console.log("Order products saved successfully:", response.data);
+            return response.data.data;
+        } else {
+            console.error("Failed to save order products:", response.data);
+            return null;
+        }
+    } catch (error) {
+        console.error("Error while saving order products:", error.message);
+        return null;
+    }
+}
+
+const acceptOrder = async (order) => {
+    try {
+        const response = await axios.post(
+            `${baseURL}/transactions/orders/${oid}`,
             order,
             {
                 headers: {
@@ -285,12 +449,22 @@ async function updateOrderProduct() {
             }
         );
 
-        let updatedOrder = response.data.data;
-        console.log(updatedOrder);
+        if (
+            response.status === 200 &&
+            response.data &&
+            response.data.data &&
+            response.data.data.length > 0
+        ) {
+            return response.data.data[0];
+        } else {
+            console.error("Invalid response format:", response);
+            return null;
+        }
     } catch (error) {
-        console.log(error);
+        console.error("Error accepting order:", error);
+        return null;
     }
-}
+};
 
 let currentDateTag = document.querySelector(".current-date");
 const currentDate = new Date().toLocaleDateString("en-GB");
@@ -334,6 +508,7 @@ $(".modal-confirm-payment").on("click", () => {
     if (productsInLocalStorage === null) {
         $("#modal-customer").modal("dispose");
         alert("Please add product or cancel the order");
+        return;
     } else {
         let isExistedOID = productsInLocalStorage.findIndex(
             (item) => item.oid === oid
@@ -341,7 +516,7 @@ $(".modal-confirm-payment").on("click", () => {
 
         if (isExistedOID === -1) {
             $("#modal-customer").modal("dispose");
-            alert("Please add product or cancel the order");            
+            alert("Please add product or cancel the order");
         }
     }
 });
@@ -355,21 +530,53 @@ $(".confirm-payment").on("click", async () => {
         return;
     }
 
-    let customer = getCustomerByPhone(phone);
+    let customer = await getCustomerByPhone(phone);
 
-    if (!customer) {
-        alert("Invalid customer");
+    if (customer.length === 0) {
+        return alert("Invalid customer");
+    }
+
+    currentOrder = JSON.parse(sessionStorage.getItem("currentOrder"));
+
+    let orderProducts = await saveAllOrderProduct(
+        JSON.parse(localStorage.getItem(`products-${oid}`))
+    );
+
+    if (orderProducts !== null || orderProducts?.length === 0) {
+        currentOrder.oid = oid;
+        currentOrder.customer = customer[0];
+        currentOrder.orderProducts = orderProducts;
+
+        let order = await acceptOrder(currentOrder);
+        
+        if (order) {
+            window.location.href = `/orders/${oid}`;
+        } else {
+            alert("FAILED TO ADD PRODUCTS TO ORDER");
+        }
     }
 });
 
-$(".btn-create-customer").on("click", (e) => {
-    alert("HELLO");
+$(".btn-create-customer").on("click", async () => {
+    let name = $("#customer-name").val();
+    let phone = $("#phone").val();
+    let email = $("#customer-email").val();
+
+    let customer = await createCustomer(name, phone, email);
+
+    if (!customer) {
+        displayDangerAlert("Failed to create customer");
+    } else {
+        displaySuccessAlert("Customer created successfully");
+    }
 });
 
 $(".btn-cancel-order").on("click", async () => {
-    $('#remove-modal').modal('show');
+    $("#remove-modal .modal-body").html(
+        "Do you want to delete this order? This cannot be undone"
+    );
 
-    $('remove-modal .modal-body').html('Do you want to delete this order? This cannot be undo');
+    $("#remove-modal").modal("show");
 
     let deleteConfirm = await confirmDelete();
     if (deleteConfirm) {

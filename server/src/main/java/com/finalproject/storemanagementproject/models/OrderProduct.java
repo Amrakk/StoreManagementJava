@@ -1,6 +1,5 @@
 package com.finalproject.storemanagementproject.models;
 
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -13,10 +12,8 @@ import lombok.Data;
 public class OrderProduct {
 	@Id
 	private String id;
-	@DBRef
 	@Field("products")
 	private String pid;
-	@DBRef
 	@Field("orders")
 	private String oid;
 	private int quantity;
