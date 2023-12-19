@@ -10,6 +10,9 @@ import java.util.Map;
 
 public class Converter<T> {
 
+    private static final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+    private static final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
+
     public static List<User> convertToUsers(List<Map<String, Object>> usersMap) {
         if (usersMap == null) return null;
 
@@ -84,13 +87,13 @@ public class Converter<T> {
         order.setTotalPrice(((Number) orderMap.get("totalPrice")).doubleValue());
         order.setOrderStatus(Status.valueOf((String) orderMap.get("orderStatus")));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
-
         String createdAtString = (String) orderMap.get("createdAt");
-        order.setCreatedAt(createdAtString != null ? LocalDateTime.parse(createdAtString, formatter) : null);
+        order.setCreatedAt(createdAtString != null ?
+                parseLocalDateTime(createdAtString, formatter1, formatter2) : null);
 
         String updatedAtString = (String) orderMap.get("updatedAt");
-        order.setUpdatedAt(updatedAtString != null ? LocalDateTime.parse(updatedAtString, formatter) : null);
+        order.setUpdatedAt(updatedAtString != null ?
+                parseLocalDateTime(updatedAtString, formatter1, formatter2) : null);
 
         List<OrderProduct> orderProducts = convertToOrderProducts((List<Map<String, Object>>) orderMap.get("orderProducts"));
         order.setOrderProducts(orderProducts);
@@ -149,15 +152,26 @@ public class Converter<T> {
         product.setIllustrator((String) productMap.get("illustrator"));
         product.setQuantity((Integer) productMap.get("quantity"));
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
-
         String createdAtString = (String) productMap.get("createdAt");
-        product.setCreatedAt(createdAtString != null ? LocalDateTime.parse(createdAtString, formatter) : null);
+        product.setCreatedAt(createdAtString != null ?
+                parseLocalDateTime(createdAtString, formatter1, formatter2) : null);
 
         String updatedAtString = (String) productMap.get("updatedAt");
-        product.setUpdatedAt(updatedAtString != null ? LocalDateTime.parse(updatedAtString, formatter) : null);
+        product.setUpdatedAt(updatedAtString != null ?
+                parseLocalDateTime(updatedAtString, formatter1, formatter2) : null);
 
         return product;
+    }
+
+    private static LocalDateTime parseLocalDateTime(String dateTimeString, DateTimeFormatter... formatters) {
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                return LocalDateTime.parse(dateTimeString, formatter);
+            } catch (Exception ignored) {
+                // Continue trying with the next formatter
+            }
+        }
+        return null; // Return null if none of the formatters succeed
     }
 
 }

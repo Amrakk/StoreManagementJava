@@ -26,4 +26,8 @@ public class OrderProductService {
     public List<OrderProduct> getAllOrderProduct(String oid) {
         return orderProductRepository.findAllByOid(oid);
     }
+
+    public List<OrderProduct> getOrderProductsByPid(String pid) {
+        return orderProductRepository.findAllByPid(pid);
+    }
 }
