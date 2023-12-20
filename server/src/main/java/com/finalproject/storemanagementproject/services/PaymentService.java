@@ -1,8 +1,10 @@
 package com.finalproject.storemanagementproject.services;
 
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 import com.finalproject.storemanagementproject.models.Order;
@@ -82,18 +84,21 @@ public class PaymentService {
 		}
 	}
 	
-	public List<Payment> getPaymentByBetweenDate(LocalDate staretDate, LocalDate endDate) {
+	public List<Payment> getPaymentByBetweenDate(Instant staretDate, Instant endDate) {
 		return paymentRepository.findByPaymentTimeBetween(staretDate, endDate);
 	}
 	
 	public List<Payment> getPaymentsInCurrentMonth(LocalDate currentDate) {
-        LocalDate startOfMonth = currentDate.withDayOfMonth(1);
-        LocalDate endOfMonth = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
+	    LocalDate startOfMonth = currentDate.withDayOfMonth(1);
+	    LocalDate endOfMonth = currentDate.withDayOfMonth(currentDate.lengthOfMonth());
 
-        return paymentRepository.findByPaymentTimeBetween(startOfMonth, endOfMonth);
-    }
+	    Instant startOfMonthInstant = startOfMonth.atStartOfDay(ZoneId.systemDefault()).toInstant();
+	    Instant endOfMonthInstant = endOfMonth.atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toInstant();
 
-	public List<Payment> getPaymentByStatusAtDate(Status completed, LocalDate startDate, LocalDate endDate) {
+	    return paymentRepository.findByPaymentTimeBetween(startOfMonthInstant, endOfMonthInstant);
+	}
+
+	public List<Payment> getPaymentByStatusAtDate(Status completed, Instant startDate, Instant endDate) {
 		return paymentRepository.findByStatusAndPaymentTimeBetween(completed, startDate, endDate);
 	}
 }
