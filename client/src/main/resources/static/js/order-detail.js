@@ -2,6 +2,22 @@ const baseURL = "http://localhost:8080/api";
 const urlParts = window.location.pathname.split('/');
 const oid = urlParts[urlParts.length - 1];
 
+function getCookie(name) {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='))
+        .split('=')[1];
+
+    return cookieValue ? decodeURIComponent(cookieValue) : null;
+}
+
+const token = getCookie('token');
+
+if (!token) {
+    window.location.href = "/auth/login";
+}
+
+
 const getOrderByOid = async oid => {
     try {
         const response = await axios.get(`${baseURL}/transactions/orders/${oid}`);
@@ -123,10 +139,33 @@ $('#place-order').on('click', async () => {
         $('#place-order').prop('disabled', true);
 
         const orderPlaced = await placeOrder(oid);
-        console.log(orderPlaced);
 
         if (orderPlaced) {
             alert(orderPlaced);
+            window.jsPDF = window.jspdf.jsPDF;
+
+            var pdf = new window.jsPDF();
+
+            pdf.text(20, 20, `Order ID: ${currentOrder.oid}`);
+            pdf.text(20, 30, `Customer Name: ${currentOrder.customer.name}`);
+            pdf.text(20, 40, `User Name: ${currentOrder.user.username}`);
+            pdf.text(20, 50, `Date Created: ${formatDate(currentOrder.createdAt)}`);
+
+            let yPos = 60;
+            for (const product of currentOrder.orderProducts) {
+                const productDetails = await getProductByPid(product.pid);
+                pdf.text(20, yPos, `Product Name: ${productDetails.name}`);
+                pdf.text(20, yPos + 10, `Quantity: ${product.quantity}`);
+                pdf.text(20, yPos + 20, `Total: ${formatCurrency(product.quantity * product.retailPrice)}`);
+                yPos += 30;
+            }        
+
+            pdf.text(20, yPos, `Total Payment: ${formatCurrency(currentOrder.totalPrice)}`);
+            pdf.text(20, yPos + 10, `Cash Received: ${$('#cash-received').val()}`);
+            pdf.text(20, yPos + 20, `Cash Return: ${$('#cash-return').val()}`);
+
+            pdf.save('order_details.pdf');
+
             window.location.href = `/Home`;
         } else {
             alert("FAILED");

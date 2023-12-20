@@ -165,7 +165,8 @@ public class TransactionController {
 
 		existingOrder.setOrderProducts(order.getOrderProducts());
 		existingOrder.setCustomer(order.getCustomer());
-
+		existingOrder.setTotalPrice(order.getTotalPrice());
+		
 		boolean isUpdated = orderService.updateOrder(existingOrder);
 
 		if (!isUpdated) {

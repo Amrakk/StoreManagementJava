@@ -1,16 +1,58 @@
 const baseURL = "http://localhost:8080/api";
-
-const user = {
-    _id: "656c99b0bd41d878152987ad",
-    email: "test@gmail.com",
-    username: "test",
-    password: "$2a$10$ch07yaBUZjMltdYBcLBkgeNJ8PF1.JAJa/RXKMX3x7u5YGXQOY5Qy",
-    status: "LOCKED",
-    role: "OWNER",
-    avatar: "https://i.ibb.co/Yp749vZ/images-3.png",
-};
-
 let oid = sessionStorage.getItem("currentOID");
+
+function getCookie(name) {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='))
+        .split('=')[1];
+
+    return cookieValue ? decodeURIComponent(cookieValue) : null;
+}
+
+async function getUserByEmail(email) {
+    try {
+        const response = await axios.get(`${baseURL}/admin/users`, {
+            params: {
+                email: email
+            }
+        });
+
+        if (response.status === 200) {
+            const users = response.data.users;
+
+            if (users && users.length > 0) {
+                return users[0];
+            } else {
+                console.log("User not found.");
+                return null;
+            }
+        } else {
+            console.log(`Request failed with status ${response.status}`);
+            return null;
+        }
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+    }
+}
+
+const token = getCookie('token');
+
+if (!token) {
+    window.location.href = "/auth/login";
+}
+
+const [header, payload, signature] = token.split('.');
+const decodedPayload = atob(payload.replace(/_/g, '/').replace(/-/g, '+'));
+const claims = JSON.parse(decodedPayload);
+const email = claims.sub;
+
+if (!oid) {
+    $(document).ready(() => {
+        createOrder(email);
+    });
+}
 
 function displaySuccessAlert(message) {
     let alertContainer = $("#alert-container");
@@ -66,8 +108,10 @@ const debounce = (func, delay) => {
 };
 
 // Create order with status PENDING
-async function createOrder() {
+async function createOrder(email) {
     try {
+        const user = await getUserByEmail(email);
+        console.log(user)
         let response = await axios.post(
             `${baseURL}/transactions/create`,
             user,
@@ -474,12 +518,6 @@ const searchInput = document.getElementById("search-product-by-name");
 const searchResultsContainer = document.getElementById("searchlist");
 const wholeTotal = document.querySelector(".whole-total");
 
-if (!oid) {
-    $(document).ready(() => {
-        createOrder();
-    });
-}
-
 updateTableFromLocalStorage(oid);
 
 searchInput.addEventListener(
@@ -546,7 +584,7 @@ $(".confirm-payment").on("click", async () => {
         currentOrder.oid = oid;
         currentOrder.customer = customer[0];
         currentOrder.orderProducts = orderProducts;
-
+        
         let order = await acceptOrder(currentOrder);
         
         if (order) {
@@ -583,3 +621,8 @@ $(".btn-cancel-order").on("click", async () => {
         changeOrderStatusFailed();
     }
 });
+
+$('.btn-create-new-order').on('click', () => {
+    const newTab = window.open("/orders", '_blank');
+    newTab.sessionStorage.clear();
+})

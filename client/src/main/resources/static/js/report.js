@@ -1,5 +1,31 @@
 const baseURL = "http://localhost:8080/api";
 
+function getCookie(name) {
+    const cookieValue = document.cookie
+        .split('; ')
+        .find(row => row.startsWith(name + '='))
+        .split('=')[1];
+
+    return cookieValue ? decodeURIComponent(cookieValue) : null;
+}
+
+const token = getCookie('token');
+
+if (!token) {
+    window.location.href = "/auth/login";
+}
+
+const [header, payload, signature] = token.split('.');
+const decodedPayload = atob(payload.replace(/_/g, '/').replace(/-/g, '+'));
+const claims = JSON.parse(decodedPayload);
+const role = claims.role;
+
+if (role !== 'ADMIN') {
+    $('#profit-table').addClass('d-none');
+} else {
+    $('#profit-table').removeClass('d-none');
+}
+
 function calculateTotalProducts(orderProducts) {
     return orderProducts ? orderProducts.length : 0;
 }

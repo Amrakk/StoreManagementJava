@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -37,9 +38,10 @@ public class UserController {
     }
 
     @GetMapping(value = "/admin/users", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getUsers(@RequestParam(required = false) String text) {
+    public ResponseEntity<Map<String, Object>> getUsers(@RequestParam(required = false) String text, @RequestParam(required = false) String email) {
         Iterable<User> users = null;
         if (text != null && !text.isEmpty()) users = userService.searchUser(text);
+        else if (email != null && !email.isEmpty()) users = Collections.singletonList(userService.getUserByEmail(email));
         else users = userService.getAllUsers();
 
         for (User user : users) user.setPassword("");
