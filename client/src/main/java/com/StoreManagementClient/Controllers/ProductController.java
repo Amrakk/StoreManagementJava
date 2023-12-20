@@ -82,6 +82,56 @@ public class ProductController {
         return "redirect:/products";
     }
 
+    @PostMapping("/admin/products/update/{id}")
+    public String updateProduct(@PathVariable String id,
+                                @RequestParam String name,
+                                @RequestParam Category category,
+                                @RequestParam Object quantity,
+                                @RequestParam Object importPrice,
+                                @RequestParam Object retailPrice,
+                                @RequestParam String barcode,
+                                @RequestParam String illustrator,
+                                RedirectAttributes redirectAttrs,
+                                HttpServletRequest request) {
+        if (name.isEmpty() || barcode.isEmpty() || illustrator.isEmpty() || importPrice == null || retailPrice == null || quantity == null) {
+            redirectAttrs.addFlashAttribute("error", "Please fill in all fields");
+            return "redirect:/products";
+        }
+
+        try {
+            Integer.parseInt(quantity.toString());
+        } catch (NumberFormatException e) {
+            redirectAttrs.addFlashAttribute("error", "Quantity must be a number");
+            return "redirect:/products";
+        }
+
+        try {
+            Double.parseDouble(importPrice.toString());
+            Double.parseDouble(retailPrice.toString());
+        } catch (NumberFormatException e) {
+            redirectAttrs.addFlashAttribute("error", "Price must be a number");
+            return "redirect:/products";
+        }
+
+        Product product = new Product(id, name, category,
+                Double.parseDouble(importPrice.toString()),
+                Double.parseDouble(retailPrice.toString()),
+                barcode, illustrator,
+                Integer.parseInt(quantity.toString()),
+                null, null);
+
+        Object response = productService.updateProduct(product);
+        if (response instanceof String)
+            redirectAttrs.addFlashAttribute("error", response);
+        else
+            redirectAttrs.addFlashAttribute("success", "Update product success");
+
+        User user = (User) request.getAttribute("authenticatedUser");
+        redirectAttrs.addFlashAttribute("user", user);
+
+        return "redirect:/products";
+    }
+
     @PostMapping("/admin/products/delete/{id}")
     public String deleteProduct(@PathVariable String id, RedirectAttributes redirectAttrs) {
         Object response = productService.deleteProduct(id);

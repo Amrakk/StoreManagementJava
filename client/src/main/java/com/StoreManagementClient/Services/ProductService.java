@@ -71,6 +71,7 @@ public class ProductService {
 
             return getObjectFromApiResponse(apiResponse);
         } catch (HttpClientErrorException e) {
+            System.out.println(e);
             Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
             if (responseBody == null || !responseBody.containsKey("message"))
                 throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
@@ -79,31 +80,31 @@ public class ProductService {
         }
     }
 
-//    public Object updateProduct(Product product) {
-//        String url = baseUrl + "/update/" + product.getPid();
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//
-//        HttpEntity<Product> requestEntity = new HttpEntity<>(product, headers);
-//        try {
-//            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
-//                    url,
-//                    HttpMethod.POST,
-//                    requestEntity,
-//                    new ParameterizedTypeReference<Map<String, Object>>() {
-//                    }
-//            );
-//
-//            return getObjectFromApiResponse(apiResponse);
-//        } catch (HttpClientErrorException e) {
-//            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
-//            if (responseBody == null || !responseBody.containsKey("message"))
-//                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
-//
-//            return responseBody.get("message");
-//        }
-//    }
+    public Object updateProduct(Product product) {
+        String url = baseUrl + "/update/" + product.getPid();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<Product> requestEntity = new HttpEntity<>(product, headers);
+        try {
+            ResponseEntity<Map<String, Object>> apiResponse = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    new ParameterizedTypeReference<Map<String, Object>>() {
+                    }
+            );
+
+            return getObjectFromApiResponse(apiResponse);
+        } catch (HttpClientErrorException e) {
+            Map<String, Object> responseBody = e.getResponseBodyAs(Map.class);
+            if (responseBody == null || !responseBody.containsKey("message"))
+                throw new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "Empty response body");
+
+            return responseBody.get("message");
+        }
+    }
 
     public Object deleteProduct(String id) {
         String url = baseUrl + "/delete/" + id;
