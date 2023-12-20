@@ -44,7 +44,7 @@
                                     <a href="javascript:void(0);" class="btn_1" onclick="submitSearchForm()">Search</a>
                                 </div>
                             </div>
-                            <div class="add_button ms-2">
+                            <div th:if="${user.getRole().toString() != 'EMPLOYEE'}" class="add_button ms-2">
                                 <a href="#" class="btn_1 border-primary bg-primary" onclick="showCreateProductModal()">Create</a>
                             </div>
                         </div>
@@ -117,7 +117,8 @@
                                                th:data-product-id="${product.getPid()}">
                                                 <i class="far fa-edit"></i>
                                             </a>
-                                            <a href="#" class="action_btn" th:data-product-id="${product.getPid()}"
+                                            <a th:if="${user.getRole().toString() != 'EMPLOYEE'}" href="#"
+                                               class="action_btn" th:data-product-id="${product.getPid()}"
                                                onclick="showProductDeleteModal(this)">
                                                 <i class="fas fa-trash"></i>
                                             </a>
@@ -141,57 +142,128 @@
 
     <!--    region Product Details    -->
 
-    <div class="modal fade show" id="user_details" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
+    <div class="modal fade show" id="product_details" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
          aria-modal="true" role="dialog">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content" style="width: 400px">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 1000px">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">User Details</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Product Details</h5>
                     <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <form action="/admin/users/update" method="post" id="edit_form">
+                <form action="/admin/products/update" method="post" id="edit_form">
                     <div class="modal-body">
                         <div class="container-fluid">
                             <div class="card custom-card mb-0">
                                 <div class="row">
-                                    <div class="card-profile col-lg-12 mb-3">
-                                        <img class="rounded-circle" th:src="${user.getAvatar()}" data-original-title=""
-                                             title="Your avatar" alt="Your profile image here" style="cursor: pointer;"
-                                             id="avatar">
+                                    <div class="col-lg-6 align-self-center">
+                                        <img src="/img/pro_complete.png" alt="Product image here"
+                                             class="mx-auto d-block" height="300"
+                                             id="illustrator">
                                     </div>
-                                    <div class="text-center profile-details d-flex justify-content-center flex-column align-items-center">
-                                        <h3 id="name">Duy Nguyen</h3>
-                                        <div class="col-6">
-                                            <input name="oldRole" type="hidden" id="old_role">
-                                            <select name="role" id="edit_user_role"
-                                                    th:class="${user.getRole().toString() != 'OWNER'} ? 'nice_Select2 nice_Select_line wide m-2 disabled' : 'nice_Select2 nice_Select_line wide m-2'"
-                                            >
-                                                <option value="OWNER">OWNER</option>
-                                                <option value="ADMIN">ADMIN</option>
-                                                <option value="EMPLOYEE">EMPLOYEE</option>
-                                            </select>
+
+                                    <div class="col-lg-6 align-self-center">
+                                        <div class="single-pro-detail">
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <div class="common_input mb_15">
+                                                        <label for="name_input"
+                                                               style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Name</label>
+                                                        <input name="name" type="text" placeholder="Name"
+                                                               id="name_input">
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label for="category_input"
+                                                           style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Category</label>
+                                                    <select name="category"
+                                                            class="nice_Select2 nice_Select_line wide m-0"
+                                                            id="category_input">
+                                                        <option value="PHONE">PHONE</option>
+                                                        <option value="TABLET">TABLET</option>
+                                                        <option value="LAPTOP">LAPTOP</option>
+                                                        <option value="PC">PC</option>
+                                                        <option value="ACCESSORY">ACCESSORY</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <div class="col-6">
+                                                    <div class="common_input mb_15">
+                                                        <label for="quantity_input"
+                                                               style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Quantity</label>
+                                                        <input name="quantity" type="number" placeholder="Quantity"
+                                                               id="quantity_input">
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="common_input mb_15">
+                                                        <label for="barcode_input"
+                                                               style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Barcode</label>
+                                                        <input name="barcode" type="text" placeholder="Barcode"
+                                                               id="barcode_input">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <div th:if="${user.getRole().toString() != 'EMPLOYEE'}" class="col-6">
+                                                    <label for="import_price_input"
+                                                           style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Import
+                                                        price</label>
+                                                    <div class="input-group mb-3">
+                                                        <div class="input-group-text">
+                                                            <span class="">$</span>
+                                                        </div>
+                                                        <input name="importPrice" type="text" class="form-control"
+                                                               aria-label="Amount (to the nearest dollar)"
+                                                               placeholder="Import Price" id="import_price_input">
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <label for="retail_price_input"
+                                                           style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Retail
+                                                        Price</label>
+                                                    <div class="input-group mb-3">
+                                                        <div class="input-group-text">
+                                                            <span class="">$</span>
+                                                        </div>
+                                                        <input name="retailPrice" type="text" class="form-control"
+                                                               aria-label="Amount (to the nearest dollar)"
+                                                               placeholder="Retail Price" id="retail_price_input">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row mb-3">
+                                                <div class="col-12">
+                                                    <div class="common_input mb_15">
+                                                        <label for="illustrator_input"
+                                                               style="font-size: 14px; font-weight: bold; margin-bottom: 5px">Image
+                                                            URL</label>
+                                                        <input name="illustrator" type="text" placeholder="Image URL"
+                                                               id="illustrator_input">
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
-                                        <h6 id="email">admin@gmail.com</h6>
-                                        <input type="hidden" name="status" id="input_status">
-                                        <a href="#" id="edit_user_status"
-                                           th:class="${user.getStatus() == 'LOCKED'} ? 'status_btn orange_bg' : 'status_btn'"
-                                           onclick="toggleUserStatus()">
-                                            <span th:text="${#strings.toLowerCase(user.getStatus())}"
-                                                  id="status"></span>
-                                        </a>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <a th:href="@{/admin/users/reset-password/{id}(id=${user.id})}"
-                           class="btn btn-success border-0" id="reset_password">
-                            Reset Password
-                        </a>
-                        <button type="submit" class="btn btn-warning text-white">Update</button>
+                    <div class="modal-footer justify-content-between">
+                        <div class="row align-left">
+                            <p style="font-size: 11px;">Created At: <span id="createdAt">20/12/2023</span></p>
+                            <p style="font-size: 11px;">Updated At: <span id="updatedAt">20/12/2023</span></p>
+                        </div>
+                        <button th:if="${user.getRole().toString() != 'EMPLOYEE'}" type="submit"
+                                class="btn btn-warning text-white">Update
+                        </button>
                     </div>
                 </form>
             </div>
@@ -323,6 +395,25 @@
 
 <script th:inline="javascript" layout:fragment="customScript">
     var productList = [[${products}]];
+
+    function showProductDetailsModal(element) {
+        var productId = $(element).data("product-id");
+        var product = productList.find(product => product.pid === productId);
+
+        $("#edit_form").attr("action", "/admin/products/update/" + productId);
+        $("#name_input").val(product.name);
+        $("#category_input").val(product.category);
+        $("#quantity_input").val(product.quantity);
+        $("#barcode_input").val(product.barcode);
+        $("#import_price_input").val(product.importPrice);
+        $("#retail_price_input").val(product.retailPrice);
+        $("#illustrator_input").val(product.illustrator);
+        $("#createdAt").text(product.createdAt ? product.createdAt.split("T")[0] : "");
+        $("#updatedAt").text(product.updatedAt ? product.updatedAt.split("T")[0] : "");
+        $("#illustrator").attr("src", product.illustrator);
+
+        $("#product_details").modal("show");
+    }
 
     function submitSearchForm() {
         document.getElementById("searchForm").submit();
