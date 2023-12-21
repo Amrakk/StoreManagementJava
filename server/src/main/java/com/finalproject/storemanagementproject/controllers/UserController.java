@@ -41,7 +41,8 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getUsers(@RequestParam(required = false) String text, @RequestParam(required = false) String email) {
         Iterable<User> users = null;
         if (text != null && !text.isEmpty()) users = userService.searchUser(text);
-        else if (email != null && !email.isEmpty()) users = Collections.singletonList(userService.getUserByEmail(email));
+        else if (email != null && !email.isEmpty())
+            users = Collections.singletonList(userService.getUserByEmail(email));
         else users = userService.getAllUsers();
 
         for (User user : users) user.setPassword("");
@@ -108,6 +109,9 @@ public class UserController {
         User user = userService.getUserById(id);
         if (user == null)
             return ResponseEntity.badRequest().body(Map.of("message", "User not found"));
+
+        if (user.getRole().equals(Role.OWNER) && !status.equals(Status.LOCKED.toString()))
+            return ResponseEntity.badRequest().body(Map.of("message", "Can not lock owner"));
 
         user.setRole(Role.valueOf(role));
         user.setStatus(Status.valueOf(status));
