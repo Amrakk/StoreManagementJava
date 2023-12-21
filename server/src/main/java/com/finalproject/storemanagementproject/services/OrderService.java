@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -54,24 +53,16 @@ public class OrderService {
 	@Transactional
 	public boolean updateOrder(Order order) {
 	    try {
-	        // Retrieve the existing order from the repository based on the order ID
 	        Order existingOrder = orderRepository.findById(order.getOid())
 	                .orElseThrow(() -> new NotFoundException());
 
-	        System.out.println(order.getCustomer().getCustId());
-	        System.out.println(order.getOrderProducts().get(0));
-	        System.out.println(calculateTotalPrice(order.getOrderProducts()));
-	        
-	        // Update the existing order properties with the new values
 	        existingOrder.setCustomer(order.getCustomer());
 	        existingOrder.setOrderProducts(order.getOrderProducts());
 	        existingOrder.setUpdatedAt(Instant.now());
-	        existingOrder.setTotalPrice(calculateTotalPrice(existingOrder.getOrderProducts()));
+	        existingOrder.setTotalPrice(calculateTotalPrice(order.getOrderProducts()));
 
-	        // Save the updated order to the repository
 	        Order updatedOrder = orderRepository.save(existingOrder);
 
-	        // Return true if the update was successful (updatedOrder is not null)
 	        return updatedOrder != null;
 	    } catch (NotFoundException ex) {
 	        // Log the exception or handle it appropriately
@@ -89,9 +80,13 @@ public class OrderService {
 	}
 
 	private double calculateTotalPrice(List<OrderProduct> orderProducts) {
-		return orderProducts == null ? 0 : orderProducts.stream().mapToDouble(OrderProduct::getRetailPrice)
-				.filter(price -> !Double.isNaN(price) && !Double.isInfinite(price)).sum();
+	    return orderProducts == null ? 0 :
+	            orderProducts.stream()
+	                    .mapToDouble(orderProduct -> orderProduct.getRetailPrice() * orderProduct.getQuantity())
+	                    .filter(price -> !Double.isNaN(price) && !Double.isInfinite(price))
+	                    .sum();
 	}
+
 
 	public Order updateOrderStatus(String orderId, Status newStatus) {
 		Order existingOrder = orderRepository.findById(orderId).orElse(null);
@@ -113,9 +108,9 @@ public class OrderService {
 		}
 	}
 	
-    public List<Order> getOrdersByTimeAndStatus(LocalDateTime startDate, LocalDateTime endDate, Status status) {
+    public List<Order> getOrdersByTimeAndStatus(Instant startDate, Instant endDate, Status status) {
         if (status != null) {
-            return orderRepository.findByCreatedAtBetweenAndOrderStatus(startDate, endDate, status);
+            return orderRepository.findOrdersByCreatedAtBetweenAndOrderStatus(startDate, endDate, status);
         } else {
             return orderRepository.findByCreatedAtBetween(startDate, endDate);
         }

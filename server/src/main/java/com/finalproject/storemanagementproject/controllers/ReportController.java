@@ -1,5 +1,7 @@
 package com.finalproject.storemanagementproject.controllers;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +17,18 @@ import com.finalproject.storemanagementproject.models.AnalyticsReport;
 import com.finalproject.storemanagementproject.services.AnalyticsService;
 
 @RestController
-@RequestMapping("/api/reports")
+@RequestMapping("/reports")
 public class ReportController {
 	@Autowired
 	private AnalyticsService analyticsService;
 
 	@GetMapping("/sale-results")
 	public ResponseEntity<APIResponse<AnalyticsReport>> getReportsForPeriod(
-			@RequestParam(required = false, defaultValue = "today") String timeline) {
+			@RequestParam(required = false, defaultValue = "today") String timeline,
+			@RequestParam(required = false) Instant startDate,
+			@RequestParam(required = false) Instant endDate) {
 		try {
-			AnalyticsReport analyticsReport = analyticsService.getReportByTimeLine(timeline);
+			AnalyticsReport analyticsReport = analyticsService.getReportByTimeLine(timeline, startDate, endDate);
 			return ResponseEntity.ok(
 					new APIResponse<>(HttpStatus.OK.value(), "Success", Collections.singletonList(analyticsReport)));
 		} catch (Exception e) {

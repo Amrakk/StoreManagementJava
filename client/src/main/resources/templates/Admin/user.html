@@ -261,7 +261,7 @@
 <!--    endregion Modals   -->
 
 <script th:inline="javascript" layout:fragment="customScript">
-    var userList = [[${users}]];
+    var userList = [[`${users}`]];
 
     function showUserDetailsModal(element) {
         var userId = $(element).data("user-id");

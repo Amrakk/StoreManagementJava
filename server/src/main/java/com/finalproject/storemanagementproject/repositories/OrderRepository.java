@@ -3,8 +3,10 @@ package com.finalproject.storemanagementproject.repositories;
 import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.Status;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,9 +14,10 @@ import java.util.List;
 public interface OrderRepository extends MongoRepository<Order, String> {
     List<Order> findByOrderStatus(Status status);
 
-    List<Order> findByCreatedAtBetweenAndOrderStatus(LocalDateTime startDateTime, LocalDateTime endDateTime, Status status);
+    @Query("{ 'createdAt' : { $gte: ?0, $lte: ?1 }, 'orderStatus': ?2 }")
+    List<Order> findOrdersByCreatedAtBetweenAndOrderStatus(Instant startDate, Instant endDate, Status status);
 
-    List<Order> findByCreatedAtBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    List<Order> findByCreatedAtBetween(Instant startInstant, Instant endInstant);
 
     List<Order> findByCustomerCustId(String custId);
 }

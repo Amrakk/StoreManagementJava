@@ -1,5 +1,6 @@
 package com.finalproject.storemanagementproject.repositories;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +14,7 @@ import com.finalproject.storemanagementproject.models.Status;
 @Repository
 public interface PaymentRepository extends MongoRepository<Payment, String> {
 	Optional<Payment> findByOid(String oid);
-    List<Payment> findByPaymentTimeBetween(LocalDate startDateTime, LocalDate endDateTime);
     List<Payment> findByStatus(Status status);
-    List<Payment> findByStatusAndPaymentTimeBetween(Status status, LocalDate startDateTime, LocalDate endDateTime);
+    List<Payment> findByPaymentTimeBetween(Instant startDateTime, Instant endDateTime);
+    List<Payment> findByStatusAndPaymentTimeBetween(Status status, Instant startDateTime, Instant endDateTime);
 }
