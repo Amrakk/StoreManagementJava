@@ -33,6 +33,7 @@ public class PaymentService {
 		payment.setPaymentTime(LocalDateTime.now());
 		payment.setAmount(order.getTotalPrice());
 		payment.setUid(order.getUser().getId());
+		payment.setPaymentMethod(paymentMethod);
 
 		try {
 			paymentRepository.insert(payment);

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -24,7 +25,7 @@ public class OrderService {
         createdOrder.setUser(user);
 
         createdOrder.setOrderStatus(Status.PENDING);
-        createdOrder.setCreatedAt(Instant.now());
+        createdOrder.setCreatedAt(Instant.now().truncatedTo(ChronoUnit.MILLIS));
 
         try {
             return orderRepository.save(createdOrder);
