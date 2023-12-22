@@ -1,23 +1,17 @@
 package com.finalproject.storemanagementproject.services;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.finalproject.storemanagementproject.models.AnalyticsReport;
 import com.finalproject.storemanagementproject.models.Order;
 import com.finalproject.storemanagementproject.models.Payment;
 import com.finalproject.storemanagementproject.models.Status;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class AnalyticsService {
@@ -150,5 +144,4 @@ public class AnalyticsService {
 
 	    return totalRevenue - totalCost;
 	}
-
 }

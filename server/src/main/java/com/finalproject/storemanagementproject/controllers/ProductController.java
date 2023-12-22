@@ -61,7 +61,7 @@ public class ProductController {
         Integer HTTP_CODE = HttpStatus.OK.value();
         String message = "Create Success";
 
-        if (productService.findByBarCode(product.getBarcode()) != null) {
+        if (!productService.findByBarCode(product.getBarcode()).isEmpty()) {
             HTTP_CODE = HttpStatus.BAD_REQUEST.value();
             message = "Barcode is already in use";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIResponse<>(HTTP_CODE, message, Collections.singletonList(null)));
@@ -82,7 +82,7 @@ public class ProductController {
         Integer HTTP_CODE = HttpStatus.OK.value();
         String message = "Update Success";
 
-        if (productService.findByBarCode(updatedProduct.getBarcode()) != null && !product.getBarcode().equals(updatedProduct.getBarcode())) {
+        if (productService.findByBarCode(updatedProduct.getBarcode()).size() == 1 && !product.getBarcode().equals(updatedProduct.getBarcode())) {
             HTTP_CODE = HttpStatus.BAD_REQUEST.value();
             message = "Barcode is already in use";
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIResponse<>(HTTP_CODE, message, Collections.singletonList(null)));
