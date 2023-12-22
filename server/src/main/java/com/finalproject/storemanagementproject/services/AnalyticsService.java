@@ -33,8 +33,11 @@ public class AnalyticsService {
 		List<Order> orders;
 		int totalOrders;
 		int totalProducts;
-	    Instant now = Instant.now();
-
+	
+		ZoneId zoneId = ZoneId.of("UTC");
+		LocalDate currentDate = LocalDate.now(zoneId);
+		Instant now = currentDate.atStartOfDay().atZone(zoneId).toInstant();
+		
 		switch (timeline.toLowerCase()) {
 		case "yesterday":
 			System.out.println("IN YESTERDAY");
@@ -91,6 +94,7 @@ public class AnalyticsService {
 
 		return report;
 	}
+	
 	private int calculateTotalProducts(List<Order> orders) {
 		return (orders != null)
 				? orders.stream().filter(order -> order.getOrderProducts() != null)
