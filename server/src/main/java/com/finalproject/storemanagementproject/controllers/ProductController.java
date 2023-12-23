@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -67,8 +69,8 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIResponse<>(HTTP_CODE, message, Collections.singletonList(null)));
         }
 
-        product.setCreatedAt(Instant.now());
-        product.setUpdatedAt(Instant.now());
+        product.setCreatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
+        product.setUpdatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
 
         Product savedProduct = productService.saveProduct(product);
         return ResponseEntity.ok(new APIResponse<>(HTTP_CODE, message,
@@ -97,7 +99,7 @@ public class ProductController {
             product.setQuantity(updatedProduct.getQuantity());
             product.setIllustrator(updatedProduct.getIllustrator());
 
-            product.setUpdatedAt(Instant.now());
+            product.setUpdatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
             productService.saveProduct(product);
             return ResponseEntity.ok(new APIResponse<>(HTTP_CODE, message, Collections.singletonList(product)));
         }

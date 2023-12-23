@@ -10,8 +10,7 @@ import java.util.Map;
 
 public class Converter<T> {
 
-    private static final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSX");
-    private static final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX");
+    private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
     public static List<User> convertToUsers(List<Map<String, Object>> usersMap) {
         if (usersMap == null) return null;
@@ -89,11 +88,11 @@ public class Converter<T> {
 
         String createdAtString = (String) orderMap.get("createdAt");
         order.setCreatedAt(createdAtString != null ?
-                parseLocalDateTime(createdAtString, formatter1, formatter2) : null);
+                parseLocalDateTime(createdAtString, formatter) : null);
 
         String updatedAtString = (String) orderMap.get("updatedAt");
         order.setUpdatedAt(updatedAtString != null ?
-                parseLocalDateTime(updatedAtString, formatter1, formatter2) : null);
+                parseLocalDateTime(updatedAtString, formatter) : null);
 
         List<OrderProduct> orderProducts = convertToOrderProducts((List<Map<String, Object>>) orderMap.get("orderProducts"));
         order.setOrderProducts(orderProducts);
@@ -154,11 +153,11 @@ public class Converter<T> {
 
         String createdAtString = (String) productMap.get("createdAt");
         product.setCreatedAt(createdAtString != null ?
-                parseLocalDateTime(createdAtString, formatter1, formatter2) : null);
+                parseLocalDateTime(createdAtString, formatter) : null);
 
         String updatedAtString = (String) productMap.get("updatedAt");
         product.setUpdatedAt(updatedAtString != null ?
-                parseLocalDateTime(updatedAtString, formatter1, formatter2) : null);
+                parseLocalDateTime(updatedAtString, formatter) : null);
 
         return product;
     }
