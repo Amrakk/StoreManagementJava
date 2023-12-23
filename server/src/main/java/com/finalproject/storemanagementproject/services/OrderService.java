@@ -10,7 +10,10 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -25,7 +28,7 @@ public class OrderService {
         createdOrder.setUser(user);
 
         createdOrder.setOrderStatus(Status.PENDING);
-        createdOrder.setCreatedAt(Instant.now().truncatedTo(ChronoUnit.MILLIS));
+        createdOrder.setCreatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
 
         try {
             return orderRepository.save(createdOrder);
@@ -59,7 +62,7 @@ public class OrderService {
 
 	        existingOrder.setCustomer(order.getCustomer());
 	        existingOrder.setOrderProducts(order.getOrderProducts());
-	        existingOrder.setUpdatedAt(Instant.now());
+	        existingOrder.setUpdatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
 	        existingOrder.setTotalPrice(calculateTotalPrice(order.getOrderProducts()));
 
 	        Order updatedOrder = orderRepository.save(existingOrder);
@@ -93,7 +96,7 @@ public class OrderService {
 		Order existingOrder = orderRepository.findById(orderId).orElse(null);
 
 		if (existingOrder != null) {
-			existingOrder.setUpdatedAt(Instant.now());
+			existingOrder.setUpdatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
 			existingOrder.setOrderStatus(newStatus);
 			return orderRepository.save(existingOrder);
 		}

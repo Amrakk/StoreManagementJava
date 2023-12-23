@@ -20,7 +20,7 @@ const decodedPayload = atob(payload.replace(/_/g, '/').replace(/-/g, '+'));
 const claims = JSON.parse(decodedPayload);
 const role = claims.role;
 
-if (role !== 'ADMIN' || role !== 'OWNER') {
+if (role !== 'ADMIN' && role !== 'OWNER') {
     $('#profit-table').addClass('d-none');
 } else {
     $('#profit-table').removeClass('d-none');
