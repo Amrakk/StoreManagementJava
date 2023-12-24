@@ -145,7 +145,7 @@ const handleSearchAndUpdateList = async (text) => {
         );
 
         let products = response.data.data;
-
+        
         if (products == null || products.length === 0) {
             // API can be changed later...
             response = await axios.get(

@@ -142,6 +142,8 @@ $('#place-order').on('click', async () => {
 
         if (orderPlaced) {
             alert(orderPlaced);
+            localStorage.clear();
+            sessionStorage.clear();
             window.jsPDF = window.jspdf.jsPDF;
 
             var pdf = new window.jsPDF();

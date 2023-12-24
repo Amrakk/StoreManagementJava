@@ -28,9 +28,9 @@ public class AnalyticsService {
 		int totalOrders;
 		int totalProducts;
 	
-		ZoneId zoneId = ZoneId.of("UTC");
-		LocalDate currentDate = LocalDate.now(zoneId);
-		Instant now = currentDate.atStartOfDay().atZone(zoneId).toInstant();
+		Instant now = Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7)));
+		
+		System.out.println("TIME: " + now);
 		
 		switch (timeline.toLowerCase()) {
 		case "yesterday":
