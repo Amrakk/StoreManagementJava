@@ -124,4 +124,8 @@ public class OrderService {
     public List<Order> findByCustomerId(String customerId) {
         return orderRepository.findByCustomerCustId(customerId);
     }
+
+	public long getTotalOrder() {
+		return orderRepository.count();
+	}
 }
