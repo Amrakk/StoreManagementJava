@@ -15,132 +15,134 @@ import java.util.List;
 
 @Service
 public class AnalyticsService {
-	@Autowired
-	private PaymentService paymentService;
+    @Autowired
+    private PaymentService paymentService;
 
-	@Autowired
-	private OrderService orderService;
+    @Autowired
+    private OrderService orderService;
 
-	public AnalyticsReport getReportByTimeLine(String timeline, Instant startDate, Instant endDate) {
-		Instant date;
-		List<Payment> paymentsAtTime = new ArrayList<>();
-		List<Order> orders;
-		int totalOrders;
-		int totalProducts;
-	
-		Instant now = Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7)));
-		
-		System.out.println("TIME: " + now);
-		
-		switch (timeline.toLowerCase()) {
-		case "yesterday":
-			System.out.println("IN YESTERDAY");
-		    Instant yesterdayStart = now.minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
-		    Instant yesterdayEnd = now.truncatedTo(ChronoUnit.DAYS);
+    public AnalyticsReport getReportByTimeLine(String timeline, Instant startDate, Instant endDate) {
+        Instant date;
+        List<Payment> paymentsAtTime = new ArrayList<>();
+        List<Order> orders;
+        int totalOrders;
+        int totalProducts;
 
-		    paymentsAtTime = paymentService.getPaymentByBetweenDate(yesterdayStart, yesterdayEnd);
-		    orders = orderService.getOrdersByTimeAndStatus(yesterdayStart, yesterdayEnd, null);
-		    break;
-		case "last7days":
-		    System.out.println("IN LAST7DAYS");
-		    Instant sevenDaysAgo = now.minus(7, ChronoUnit.DAYS);
+        Instant now = Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))).truncatedTo(ChronoUnit.DAYS);
 
-		    paymentsAtTime = paymentService.getPaymentByBetweenDate(sevenDaysAgo, now);
-		    orders = orderService.getOrdersByTimeAndStatus(sevenDaysAgo, now, null);
-		    break;
-		case "thismonth":
-		    System.out.println("IN THIS MONTH");
-		    Instant startOfMonth = now.atZone(ZoneOffset.UTC).withDayOfMonth(1).toInstant();
+        System.out.println("TIME: " + now);
 
-		    paymentsAtTime = paymentService.getPaymentsInCurrentMonth(startOfMonth.atZone(ZoneOffset.UTC).toLocalDate());
-		    orders = orderService.getOrdersByTimeAndStatus(startOfMonth, now, null);
-		    break;
-		case "custom":
-			System.out.println(startDate);
-			System.out.println(endDate);
-			if (startDate == null || endDate == null) {
-				return null;
-			}
+        switch (timeline.toLowerCase()) {
+            case "yesterday":
+                System.out.println("IN YESTERDAY");
+                Instant yesterdayStart = now.minus(1, ChronoUnit.DAYS);
+                Instant yesterdayEnd = now;
 
-			paymentsAtTime = paymentService.getPaymentByBetweenDate(startDate, endDate);
-			orders = orderService.getOrdersByTimeAndStatus(startDate, endDate, null);
-			break;
-		default:
-			System.out.println("IN TODAY");
-			date = LocalDateTime.now().with(LocalTime.MIN).toInstant(ZoneOffset.UTC);
-			paymentsAtTime = paymentService.getPaymentByBetweenDate(date, now);
-			orders = orderService.getOrdersByTimeAndStatus(date, now, null);
-			break;
-		}
+                paymentsAtTime = paymentService.getPaymentByBetweenDate(yesterdayStart, yesterdayEnd);
+                orders = orderService.getOrdersByTimeAndStatus(yesterdayStart, yesterdayEnd, null);
+                break;
+            case "last7days":
+                System.out.println("IN LAST7DAYS");
+                Instant sevenDaysAgo = now.minus(6, ChronoUnit.DAYS);
 
-		totalOrders = (orders != null) ? orders.size() : 0;
-		totalProducts = calculateTotalProducts(orders);
+                paymentsAtTime = paymentService.getPaymentByBetweenDate(sevenDaysAgo, now.plus(1, ChronoUnit.DAYS));
+                orders = orderService.getOrdersByTimeAndStatus(sevenDaysAgo, now.plus(1, ChronoUnit.DAYS), null);
+                break;
+            case "thismonth":
+                System.out.println("IN THIS MONTH");
+                Instant startOfMonth = now.atZone(ZoneOffset.UTC).withDayOfMonth(1).toInstant();
 
-		AnalyticsReport report = new AnalyticsReport();
+                paymentsAtTime = paymentService.getPaymentsInCurrentMonth(startOfMonth.atZone(ZoneOffset.UTC).toLocalDate());
+                orders = orderService.getOrdersByTimeAndStatus(startOfMonth, now.plus(1, ChronoUnit.DAYS), null);
+                break;
+            case "custom":
+                System.out.println(startDate);
+                System.out.println(endDate);
+                if (startDate == null || endDate == null) {
+                    return null;
+                }
 
-		double totalAmountReceived = calculateTotalAmount(paymentsAtTime, Status.COMPLETED);
+                startDate.truncatedTo(ChronoUnit.DAYS);
+                endDate.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
 
-		report.setTotalAmountReceived(totalAmountReceived);
-		report.setNumberOfOrders(totalOrders);
-		report.setNumberOfProducts(totalProducts);
-		report.setOrders(orders);
+                paymentsAtTime = paymentService.getPaymentByBetweenDate(startDate, endDate);
+                orders = orderService.getOrdersByTimeAndStatus(startDate, endDate, null);
+                break;
+            default:
+                System.out.println("IN TODAY");
+                paymentsAtTime = paymentService.getPaymentByBetweenDate(now, now.plus(1, ChronoUnit.DAYS));
+                orders = orderService.getOrdersByTimeAndStatus(now, now.plus(1, ChronoUnit.DAYS), null);
+                break;
+        }
 
-		return report;
-	}
-	
-	private int calculateTotalProducts(List<Order> orders) {
-		return (orders != null)
-				? orders.stream().filter(order -> order.getOrderProducts() != null)
-						.mapToInt(order -> order.getOrderProducts().size()).sum()
-				: 0;
-	}
+        totalOrders = (orders != null) ? orders.size() : 0;
+        totalProducts = calculateTotalProducts(orders);
 
-	private double calculateTotalAmount(List<Payment> payments, Status targetStatus) {
-		final Status finalTargetStatus = (targetStatus != null) ? targetStatus : Status.COMPLETED;
+        AnalyticsReport report = new AnalyticsReport();
 
-		return payments.stream().filter(p -> p.getStatus() == finalTargetStatus).mapToDouble(Payment::getAmount).sum();
-	}
-	
-	public double calculateProfitForPeriod(String period) {
-	    Instant startDate;
-	    Instant endDate = Instant.now();
+        double totalAmountReceived = calculateTotalAmount(paymentsAtTime, Status.COMPLETED);
 
-	    switch (period.toLowerCase()) {
-	        case "yesterday":
-	            startDate = endDate.minus(1, ChronoUnit.DAYS);
-	            break;
-	        case "7days":
-	            startDate = endDate.minus(7, ChronoUnit.DAYS);
-	            break;
-	        case "thismonth":
-	            startDate = LocalDate.now().withDayOfMonth(1).atStartOfDay().toInstant(ZoneOffset.UTC);
-	            break;
-	        default:
-	            String[] dateRange = period.split("-");
-	            startDate = LocalDate.parse(dateRange[0], DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-	                .atStartOfDay()
-	                .toInstant(ZoneOffset.UTC);
-	            endDate = LocalDate.parse(dateRange[1], DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-	                .plusDays(1)
-	                .atStartOfDay()
-	                .toInstant(ZoneOffset.UTC);
-	            break;
-	    }
+        report.setTotalAmountReceived(totalAmountReceived);
+        report.setNumberOfOrders(totalOrders);
+        report.setNumberOfProducts(totalProducts);
+        report.setOrders(orders);
 
-	    return calculateProfit(startDate, endDate);
-	}
+        return report;
+    }
 
-	public double calculateProfit(Instant startDate, Instant endDate) {
-	    List<Payment> completedPayments = paymentService.getPaymentByStatusAtDate(Status.COMPLETED, startDate, endDate);
-	    double totalRevenue = completedPayments.stream().mapToDouble(Payment::getAmount).sum();
+    private int calculateTotalProducts(List<Order> orders) {
+        return (orders != null)
+                ? orders.stream().filter(order -> order.getOrderProducts() != null)
+                .mapToInt(order -> order.getOrderProducts().size()).sum()
+                : 0;
+    }
 
-	    List<Order> orders = orderService.getOrdersByTimeAndStatus(startDate, endDate, Status.COMPLETED);
+    private double calculateTotalAmount(List<Payment> payments, Status targetStatus) {
+        final Status finalTargetStatus = (targetStatus != null) ? targetStatus : Status.COMPLETED;
 
-	    double totalCost = orders.stream()
-	            .flatMap(order -> order.getOrderProducts().stream())
-	            .mapToDouble(orderProduct -> orderProduct.getImportPrice() * orderProduct.getQuantity())
-	            .sum();
+        return payments.stream().filter(p -> p.getStatus() == finalTargetStatus).mapToDouble(Payment::getAmount).sum();
+    }
 
-	    return totalRevenue - totalCost;
-	}
+    public double calculateProfitForPeriod(String period) {
+        Instant startDate;
+        Instant endDate = Instant.now();
+
+        switch (period.toLowerCase()) {
+            case "yesterday":
+                startDate = endDate.minus(1, ChronoUnit.DAYS);
+                break;
+            case "7days":
+                startDate = endDate.minus(7, ChronoUnit.DAYS);
+                break;
+            case "thismonth":
+                startDate = LocalDate.now().withDayOfMonth(1).atStartOfDay().toInstant(ZoneOffset.UTC);
+                break;
+            default:
+                String[] dateRange = period.split("-");
+                startDate = LocalDate.parse(dateRange[0], DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        .atStartOfDay()
+                        .toInstant(ZoneOffset.UTC);
+                endDate = LocalDate.parse(dateRange[1], DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        .plusDays(1)
+                        .atStartOfDay()
+                        .toInstant(ZoneOffset.UTC);
+                break;
+        }
+
+        return calculateProfit(startDate, endDate);
+    }
+
+    public double calculateProfit(Instant startDate, Instant endDate) {
+        List<Payment> completedPayments = paymentService.getPaymentByStatusAtDate(Status.COMPLETED, startDate, endDate);
+        double totalRevenue = completedPayments.stream().mapToDouble(Payment::getAmount).sum();
+
+        List<Order> orders = orderService.getOrdersByTimeAndStatus(startDate, endDate, Status.COMPLETED);
+
+        double totalCost = orders.stream()
+                .flatMap(order -> order.getOrderProducts().stream())
+                .mapToDouble(orderProduct -> orderProduct.getImportPrice() * orderProduct.getQuantity())
+                .sum();
+
+        return totalRevenue - totalCost;
+    }
 }
