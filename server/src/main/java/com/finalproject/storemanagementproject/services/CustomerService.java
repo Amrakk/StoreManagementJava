@@ -61,4 +61,8 @@ public class CustomerService {
             return false;
         }
     }
+
+	public long getTotalCustomer() {
+		return customerRepository.count();
+	}
 }

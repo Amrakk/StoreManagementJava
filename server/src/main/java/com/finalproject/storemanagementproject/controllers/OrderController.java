@@ -35,4 +35,10 @@ public class OrderController {
         return ResponseEntity
                 .ok(new APIResponse<>(HttpStatus.OK.value(), "Success", orders));
     }
+    
+    @GetMapping("/total")
+    public ResponseEntity<APIResponse<Long>> getTotalOrder() {
+    	long total = orderService.getTotalOrder();
+    	return ResponseEntity.ok(new APIResponse<Long>(HttpStatus.OK.value(), "Success", Collections.singletonList(total)));
+    }
 }

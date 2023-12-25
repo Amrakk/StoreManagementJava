@@ -3,12 +3,14 @@ package com.finalproject.storemanagementproject.controllers;
 import com.finalproject.storemanagementproject.middleware.MailService;
 import com.finalproject.storemanagementproject.middleware.PasswordService;
 import com.finalproject.storemanagementproject.middleware.ResetPasswordTokenService;
+import com.finalproject.storemanagementproject.models.APIResponse;
 import com.finalproject.storemanagementproject.models.Role;
 import com.finalproject.storemanagementproject.models.Status;
 import com.finalproject.storemanagementproject.models.User;
 import com.finalproject.storemanagementproject.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -196,4 +198,10 @@ public class UserController {
         return ResponseEntity.ok().body(Map.of("message", "Change password success", "user", user));
     }
 
+    // Get total user
+    @GetMapping("/users/total")
+    public ResponseEntity<APIResponse<Long>> getTotalUser() {
+    	long total = userService.getTotalUser();
+    	return ResponseEntity.ok(new APIResponse<Long>(HttpStatus.OK.value(), "Success", Collections.singletonList(total)));
+    }
 }

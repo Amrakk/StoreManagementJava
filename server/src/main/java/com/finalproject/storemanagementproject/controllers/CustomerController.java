@@ -143,4 +143,10 @@ public class CustomerController {
         return ResponseEntity
                 .ok(new APIResponse<>(HttpStatus.OK.value(), "Success", Collections.singletonList(customer)));
     }
+    
+    @GetMapping("/total")
+    public ResponseEntity<APIResponse<Long>> getTotalCustomer() {
+    	long total = customerService.getTotalCustomer();
+    	return ResponseEntity.ok(new APIResponse<Long>(HttpStatus.OK.value(), "Success", Collections.singletonList(total)));
+    }
 }

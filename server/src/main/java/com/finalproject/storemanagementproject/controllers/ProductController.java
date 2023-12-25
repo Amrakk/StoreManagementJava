@@ -128,4 +128,11 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIResponse<>(HttpStatus.BAD_REQUEST.value(), "Delete Failed", Collections.emptyList()));
         }
     }
+    
+    // Get total product
+    @GetMapping("/total")
+    public ResponseEntity<APIResponse<Long>> getTotalProducts() {
+    	long total = productService.getTotalProducts();
+    	return ResponseEntity.ok(new APIResponse<Long>(HttpStatus.OK.value(), "Success", Collections.singletonList(total)));
+    }
 }
