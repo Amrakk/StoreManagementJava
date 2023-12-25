@@ -68,9 +68,8 @@ public class AnalyticsService {
 		default:
 			System.out.println("IN TODAY");
 			date = LocalDateTime.now().with(LocalTime.MIN).toInstant(ZoneOffset.UTC);
-			paymentsAtTime = paymentService.getPaymentByBetweenDate(date, Instant.now());
-			orders = orderService.getOrdersByTimeAndStatus(date, Instant.now(), null);
-			orders.forEach(ord -> System.out.println(ord.toString()));
+			paymentsAtTime = paymentService.getPaymentByBetweenDate(date, now);
+			orders = orderService.getOrdersByTimeAndStatus(date, now, null);
 			break;
 		}
 

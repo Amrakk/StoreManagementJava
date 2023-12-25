@@ -14,8 +14,6 @@ import com.finalproject.storemanagementproject.repositories.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-
 @Service
 public class PaymentService {
 	@Autowired
@@ -36,7 +34,7 @@ public class PaymentService {
 		payment.setPaymentMethod(paymentMethod);
 
 		try {
-			paymentRepository.insert(payment);
+			paymentRepository.save(payment);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

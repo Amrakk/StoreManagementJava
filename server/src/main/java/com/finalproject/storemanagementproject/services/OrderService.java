@@ -10,11 +10,10 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -63,8 +62,10 @@ public class OrderService {
 	        existingOrder.setCustomer(order.getCustomer());
 	        existingOrder.setOrderProducts(order.getOrderProducts());
 	        existingOrder.setUpdatedAt(Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))));
-	        existingOrder.setTotalPrice(calculateTotalPrice(order.getOrderProducts()));
-
+	        
+	        DecimalFormat df = new DecimalFormat("#.##");
+	        existingOrder.setTotalPrice(Double.valueOf(df.format(calculateTotalPrice(order.getOrderProducts()))));
+	        
 	        Order updatedOrder = orderRepository.save(existingOrder);
 
 	        return updatedOrder != null;
