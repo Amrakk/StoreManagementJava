@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,18 +22,15 @@ public class AnalyticsService {
 
     public AnalyticsReport getReportByTimeLine(String timeline, Instant startDate, Instant endDate) {
         Instant date;
-        List<Payment> paymentsAtTime = new ArrayList<>();
+        List<Payment> paymentsAtTime;
         List<Order> orders;
         int totalOrders;
         int totalProducts;
 
         Instant now = Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))).truncatedTo(ChronoUnit.DAYS);
 
-        System.out.println("TIME: " + now);
-
         switch (timeline.toLowerCase()) {
             case "yesterday":
-                System.out.println("IN YESTERDAY");
                 Instant yesterdayStart = now.minus(1, ChronoUnit.DAYS);
                 Instant yesterdayEnd = now;
 
@@ -42,22 +38,18 @@ public class AnalyticsService {
                 orders = orderService.getOrdersByTimeAndStatus(yesterdayStart, yesterdayEnd, null);
                 break;
             case "last7days":
-                System.out.println("IN LAST7DAYS");
                 Instant sevenDaysAgo = now.minus(6, ChronoUnit.DAYS);
 
                 paymentsAtTime = paymentService.getPaymentByBetweenDate(sevenDaysAgo, now.plus(1, ChronoUnit.DAYS));
                 orders = orderService.getOrdersByTimeAndStatus(sevenDaysAgo, now.plus(1, ChronoUnit.DAYS), null);
                 break;
             case "thismonth":
-                System.out.println("IN THIS MONTH");
                 Instant startOfMonth = now.atZone(ZoneOffset.UTC).withDayOfMonth(1).toInstant();
 
                 paymentsAtTime = paymentService.getPaymentsInCurrentMonth(startOfMonth.atZone(ZoneOffset.UTC).toLocalDate());
                 orders = orderService.getOrdersByTimeAndStatus(startOfMonth, now.plus(1, ChronoUnit.DAYS), null);
                 break;
             case "custom":
-                System.out.println(startDate);
-                System.out.println(endDate);
                 if (startDate == null || endDate == null) {
                     return null;
                 }
@@ -69,7 +61,6 @@ public class AnalyticsService {
                 orders = orderService.getOrdersByTimeAndStatus(startDate, endDate, null);
                 break;
             default:
-                System.out.println("IN TODAY");
                 paymentsAtTime = paymentService.getPaymentByBetweenDate(now, now.plus(1, ChronoUnit.DAYS));
                 orders = orderService.getOrdersByTimeAndStatus(now, now.plus(1, ChronoUnit.DAYS), null);
                 break;
