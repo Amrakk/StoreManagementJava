@@ -47,7 +47,6 @@ const getProductByPid = async pid => {
 const placeOrder = async (oid) => {
     try {
         const response = await axios.get(`${baseURL}/transactions/orders/${oid}/cash/success`);
-        console.log(response);
 
         if (response.status === 200) {
             return response.data.message;
@@ -66,12 +65,20 @@ let currentOrder;
     currentOrder = await getOrderByOid(oid);
 
     if (currentOrder) {
-        console.log("Current Order details:", currentOrder);
+        const options = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric',
+            timeZone: 'UTC'
+        };
 
         document.getElementById("oidValue").textContent = currentOrder.oid;
         document.getElementById("customerNameValue").textContent = currentOrder.customer.name;
         document.getElementById("userNameValue").textContent = currentOrder.user.username;
-        document.getElementById("dateCreatedValue").textContent = formatDate(currentOrder.createdAt);
+        document.getElementById("dateCreatedValue").textContent = new Date(currentOrder.createdAt).toLocaleString('en-US', options);
 
         const productTableBody = document.getElementById("product-table-body");
         currentOrder.orderProducts.forEach(async product => {
@@ -112,11 +119,6 @@ let currentOrder;
     }
 })();
 
-const formatDate = dateString => {
-    const date = new Date(dateString);
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-};
-
 const formatCurrency = amount => `$${amount.toFixed(2)}`;
 
 $("#cash-received").on("input", function() {
@@ -138,9 +140,20 @@ $('#place-order').on('click', async () => {
 
         $('#place-order').prop('disabled', true);
 
+        console.log("PLACE ORDER");
         const orderPlaced = await placeOrder(oid);
 
         if (orderPlaced) {
+            const options = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric',
+                timeZone: 'UTC'
+            };
+
             alert(orderPlaced);
             localStorage.clear();
             sessionStorage.clear();
@@ -151,7 +164,7 @@ $('#place-order').on('click', async () => {
             pdf.text(20, 20, `Order ID: ${currentOrder.oid}`);
             pdf.text(20, 30, `Customer Name: ${currentOrder.customer.name}`);
             pdf.text(20, 40, `User Name: ${currentOrder.user.username}`);
-            pdf.text(20, 50, `Date Created: ${formatDate(currentOrder.createdAt)}`);
+            pdf.text(20, 50, `Date Created: ${new Date(currentOrder.createdAt).toLocaleString('en-US', options)}`);
 
             let yPos = 60;
             for (const product of currentOrder.orderProducts) {
