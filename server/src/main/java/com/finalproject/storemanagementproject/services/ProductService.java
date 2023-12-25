@@ -13,108 +13,103 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
-	@Autowired
-	private ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
-	@Autowired
-	private OrderRepository orderRepository;
+    @Autowired
+    private OrderRepository orderRepository;
 
-	public List<Product> getAllProducts() {
-		return productRepository.findAll();
-	}
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
 
-	public Product saveProduct(Product product) {
-		return productRepository.save(product);
-	}
+    public Product saveProduct(Product product) {
+        return productRepository.save(product);
+    }
 
-	public void deleteProduct(String id) {
-		productRepository.deleteById(id);
-	}
+    public void deleteProduct(String id) {
+        productRepository.deleteById(id);
+    }
 
-	public Product getProductById(String id) {
-		return productRepository.findById(id).orElse(null);
-	}
+    public Product getProductById(String id) {
+        return productRepository.findById(id).orElse(null);
+    }
 
-	public List<Product> findByBarCode(String barcode) {
-		return productRepository.findByBarcode(barcode);
-	}
+    public List<Product> findByBarCode(String barcode) {
+        return productRepository.findByBarcode(barcode);
+    }
 
-	public List<Product> findProductByName(String name) {
-		return productRepository.findByNameContainingIgnoreCase(name);
-	}
+    public List<Product> findProductByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name);
+    }
 
-	public Product findByPid(String pid) {
-		return productRepository.findById(pid).orElse(null);
-	}
+    public Product findByPid(String pid) {
+        return productRepository.findById(pid).orElse(null);
+    }
 
-	public List<Product> getTop5ProductByTime(String timeline, Instant startDate, Instant endDate) {
-		Instant start, end;
-		Instant now = Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7)));
+    public List<Product> getTop5ProductByTime(String timeline, Instant startDate, Instant endDate) {
+        Instant start, end;
+        Instant now = Instant.now(Clock.offset(Clock.systemUTC(), Duration.ofHours(+7))).truncatedTo(ChronoUnit.DAYS);
 
-		switch (timeline.toLowerCase()) {
-		case "yesterday":
-			System.out.println("IN YESTERDAY");
-			start = now.minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
-			end = now.truncatedTo(ChronoUnit.DAYS);
+        switch (timeline.toLowerCase()) {
+            case "yesterday":
+                System.out.println("IN YESTERDAY");
+                start = now.minus(1, ChronoUnit.DAYS);
+                end = now;
 
-			break;
-		case "last7days":
-			System.out.println("IN LAST7DAYS");
-			start = now.minus(7, ChronoUnit.DAYS);
-			end = now.truncatedTo(ChronoUnit.DAYS);
-			break;
-		case "thismonth":
-			System.out.println("IN THIS MONTH");
-			start = now.atZone(ZoneOffset.UTC).withDayOfMonth(1).toInstant();
-			end = now.truncatedTo(ChronoUnit.DAYS);
+                break;
+            case "last7days":
+                System.out.println("IN LAST7DAYS");
+                start = now.minus(6, ChronoUnit.DAYS);
+                end = now.plus(1, ChronoUnit.DAYS);
+                break;
+            case "thismonth":
+                System.out.println("IN THIS MONTH");
+                start = now.atZone(ZoneOffset.UTC).withDayOfMonth(1).toInstant();
+                end = now.plus(1, ChronoUnit.DAYS);
 
-			break;
-		case "custom":
-			System.out.println(startDate);
-			System.out.println(endDate);
-			if (startDate == null || endDate == null) {
-				return null;
-			}
+                break;
+            case "custom":
+                System.out.println(startDate);
+                System.out.println(endDate);
+                if (startDate == null || endDate == null) {
+                    return null;
+                }
 
-			start = startDate;
-			end = endDate;
-			break;
+                start = startDate.truncatedTo(ChronoUnit.DAYS);
+                end = endDate.truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
+                break;
 
-		default:
-			System.out.println("IN TODAY");
-			start = now.truncatedTo(ChronoUnit.DAYS);
-			end = now.plus(1, ChronoUnit.DAYS);
+            default:
+                System.out.println("IN TODAY");
+                start = now;
+                end = now.plus(1, ChronoUnit.DAYS);
 
-			break;
-		}
+                break;
+        }
 
-		List<Order> orders = orderRepository.findByCreatedAtBetween(start, end);
-		
-		Map<String, Integer> productQuantityMap = new HashMap<>();
+        List<Order> orders = orderRepository.findByCreatedAtBetween(start, end);
+        Map<String, Integer> productQuantityMap = new HashMap<>();
 
-		for (Order order : orders) {
-			for (OrderProduct orderProduct : order.getOrderProducts()) {
-				String productId = orderProduct.getPid();
-				int quantity = orderProduct.getQuantity();
+        for (Order order : orders) {
+            for (OrderProduct orderProduct : order.getOrderProducts()) {
+                String productId = orderProduct.getPid();
+                int quantity = orderProduct.getQuantity();
 
-				productQuantityMap.put(productId, productQuantityMap.getOrDefault(productId, 0) + quantity);
-			}
-		}
+                productQuantityMap.put(productId, productQuantityMap.getOrDefault(productId, 0) + quantity);
+            }
+        }
 
-		List<Product> topProducts = productQuantityMap.entrySet().stream()
-				.sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(5)
-				.map(entry -> productRepository.findById(entry.getKey()).orElse(null)).filter(Objects::nonNull)
-				.collect(Collectors.toList());
+        List<Product> topProducts = productQuantityMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(5)
+                .map(entry -> productRepository.findById(entry.getKey()).orElse(null)).filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-		return topProducts;
-	}
+        return topProducts;
+    }
 }
