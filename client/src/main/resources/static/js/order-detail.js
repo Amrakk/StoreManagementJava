@@ -75,7 +75,6 @@ let currentOrder;
             timeZone: 'UTC'
         };
 
-        console.log(currentOrder.createdAt)
         document.getElementById("oidValue").textContent = currentOrder.oid;
         document.getElementById("customerNameValue").textContent = currentOrder.customer.name;
         document.getElementById("userNameValue").textContent = currentOrder.user.username;
