@@ -26,7 +26,7 @@ The server is responsible for handling API requests. To interact with the server
 
 Check out the demo to see the Store Management System in action. The demo showcases key features and functionality.
 
-[Demo Link](https://drive.google.com/drive/folders/1PyBtCtcs2ouoTi5fr-9sydm0gCYaasED?usp=sharing)
+[Demo Link](https://youtu.be/LeH0-5qj-yg)
 
 ## Getting Started
 
